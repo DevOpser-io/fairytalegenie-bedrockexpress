@@ -1,0 +1,124 @@
+<% title = 'Login' %>
+<link rel="stylesheet" href="/static/auth.css">
+<%- include('./partials/favicon') %>
+
+<!-- Inline responsive styles for login page -->
+<style nonce="<%= cspNonce %>">
+  /* Responsive styles for login page */
+  @media screen and (max-width: 768px) {
+    .auth-form-container {
+      max-width: 100%;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 6px;
+    }
+    
+    .auth-form {
+      width: 100%;
+    }
+    
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group input[type="text"] {
+      font-size: 16px; /* Prevents zoom on iOS */
+      padding: 12px;
+    }
+    
+    .auth-button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+    }
+  }
+  
+  /* Small mobile devices */
+  @media screen and (max-width: 480px) {
+    .auth-form-container {
+      margin: 10px auto;
+      padding: 15px;
+    }
+    
+    .auth-form-container h2 {
+      font-size: 1.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .auth-links {
+      font-size: 13px;
+    }
+  }
+  
+  /* Fix for mobile viewport height issues */
+  @media screen and (max-height: 600px) {
+    .auth-form-container {
+      margin: 10px auto;
+    }
+  }
+  
+  /* Ensure form elements don't overflow */
+  .form-group input {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+</style>
+
+<!-- Add viewport meta tag for proper mobile scaling -->
+<script nonce="<%= cspNonce %>">
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!document.querySelector('meta[name="viewport"]')) {
+      const meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+      document.head.appendChild(meta);
+    }
+  });
+</script>
+
+<div class="auth-form-container">
+  <h2>Login</h2>
+  
+  <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+    <div class="flash error">
+      <%= error %>
+    </div>
+  <% } %>
+  <% if (typeof message !== 'undefined' && message && message.length > 0) { %>
+    <div class="flash info">
+      <%= message %>
+    </div>
+  <% } %>
+  
+  <form id="login-form" method="POST" action="/auth/login" class="auth-form">
+    
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required autofocus>
+    </div>
+    
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    
+    <div class="form-group">
+      <label class="flex">
+        <input type="checkbox" id="remember" name="remember">
+        <span class="ml-2">Remember me</span>
+      </label>
+    </div>
+    
+    <button type="submit" class="auth-button">Login</button>
+    
+    <div class="auth-links">
+      Don't have an account? <a href="/auth/signup">Sign up</a>
+      <br>
+      <a href="/auth/forgot-password" class="btn-link">Forgot Password?</a>
+      <br>
+      <a href="/auth/resend-verification" class="btn-link">Resend Verification Email</a>
+    </div>
+  </form>
+</div>
+

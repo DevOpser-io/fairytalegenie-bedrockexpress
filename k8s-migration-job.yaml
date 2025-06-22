@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bedrockexpress-database-migration
+spec:
+  template:
+    spec:
+      containers:
+      - name: migration
+        image: ${YOUR_IMAGE_REPOSITORY}:${TAG}
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -e
+          
+          cd /app/backend
+          echo "Running in directory: $(pwd)"
+          
+          # Print environment variables (excluding secrets)
+          echo "=== Environment Variables ==="
+          env | grep -v -E 'SECRET|PASSWORD|KEY'
+          
+          # Check if DB_NAME_SECRET_NAME is set
+          echo "=== Checking Secret Environment Variables ==="
+          echo "DB_NAME_SECRET_NAME is set: $(if [ -n "$DB_NAME_SECRET_NAME" ]; then echo "YES"; else echo "NO"; fi)"
+          echo "DB_USER_SECRET_NAME is set: $(if [ -n "$DB_USER_SECRET_NAME" ]; then echo "YES"; else echo "NO"; fi)"
+          echo "DB_PASSWORD_SECRET_NAME is set: $(if [ -n "$DB_PASSWORD_SECRET_NAME" ]; then echo "YES"; else echo "NO"; fi)"
+          echo "DB_HOST_SECRET_NAME is set: $(if [ -n "$DB_HOST_SECRET_NAME" ]; then echo "YES"; else echo "NO"; fi)"
+          echo "DB_PORT_SECRET_NAME is set: $(if [ -n "$DB_PORT_SECRET_NAME" ]; then echo "YES"; else echo "NO"; fi)"
+          
+          # Run the migration script
+          echo "=== Running Migration Script ==="
+          NODE_ENV=production DB_REQUIRE_SSL=true node scripts/run-migrations.js
+        env:
+        - name: DB_REQUIRE_SSL
+          value: "true"
+        # Add your other environment variables here
+      restartPolicy: Never
+  backoffLimit: 3

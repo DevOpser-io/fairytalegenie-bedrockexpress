@@ -1,0 +1,127 @@
+<!-- account.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title><%= title || 'Account Settings' %></title>
+  
+  <%- include('./partials/favicon') %>
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="/static/css/litera-bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/bootstrap-icons.css">
+  <link rel="stylesheet" href="/static/nav.css">
+  <link rel="stylesheet" href="/static/flash.css">
+  <link rel="stylesheet" href="/static/dist/bundle.css">
+  
+  <!-- Custom styles to match original application -->
+  <link rel="stylesheet" href="/static/chat-custom.css">
+  
+  <!-- Account page specific styles -->
+  <link rel="stylesheet" href="/static/account.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Bedrock Express AI</a>
+        
+        <!-- hamburger toggler -->
+        <button 
+          class="navbar-toggler" 
+          type="button" 
+          data-bs-toggle="collapse" 
+          data-bs-target="#navbarNav" 
+          aria-controls="navbarNav" 
+          aria-expanded="false" 
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <%- include('./partials/nav') %>
+      </div>
+    </nav>
+  </header>
+  
+
+  <main class="container-fluid p-0">
+    <!-- Flash Messages -->
+    <% if (typeof message !== 'undefined' && message && message.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <%= message %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <%= error %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+    <div class="row app-container m-0">
+      <div class="account-page-wrapper">
+        <div class="account-page">
+          <div class="account-container">
+            <h2>Account Settings</h2>
+
+            <!-- Security Settings -->
+            <div class="settings-section">
+              <h3>Security Settings</h3>
+              <div class="security-methods">
+                <!-- Email MFA -->
+                <div class="security-method">
+                  <div class="method-header">
+                    <span class="method-name">Email Authentication</span>
+                    <span class="status-badge enabled">Always Enabled</span>
+                  </div>
+                  <p class="method-description">
+                    Verification codes will be sent to your email address.
+                  </p>
+                </div>
+
+                <!-- Authenticator App -->
+                <div class="security-method">
+                  <div class="method-header">
+                    <span class="method-name">Authenticator App</span>
+                    <span class="status-badge <%= user.hasAuthenticator ? 'enabled' : 'disabled' %>">
+                      <%= user.hasAuthenticator ? 'Enabled' : 'Not Setup' %>
+                    </span>
+                  </div>
+                  <p class="method-description">
+                    Use an authenticator app like Microsoft Authenticator or Authy.
+                  </p>
+                  <div class="method-actions">
+                    <% if (user.hasAuthenticator) { %>
+                      <form action="/auth/remove-authenticator" method="POST">
+                        <button type="submit" class="btn danger">Remove Authenticator</button>
+                      </form>
+                    <% } else { %>
+                      <a href="/auth/setup-authenticator" class="btn primary">Setup Authenticator</a>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subscription Information -->
+            <div class="settings-section">
+              <h3>Subscription Management</h3>
+              <div class="subscription-info">
+                <p>Subscription features coming soon!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- JavaScript Files -->
+  <script src="/static/js/bootstrap.bundle.min.js" defer></script>
+  <script src="/static/flash.js" defer></script>
+  <script src="/static/js/navbar-debug.js"></script>
+  <script src="/static/js/mobile-nav.js" defer></script>
+</body>
+</html>
