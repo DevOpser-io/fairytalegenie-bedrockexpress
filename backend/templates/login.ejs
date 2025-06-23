@@ -63,6 +63,80 @@
     max-width: 100%;
     box-sizing: border-box;
   }
+  
+  /* Message styles for JavaScript */
+  .success-message {
+    display: block !important;
+    background: #e8f5e8 !important;
+    color: #2e7d32 !important;
+    border: 2px solid #4caf50 !important;
+  }
+  
+  .error-message {
+    display: block !important;
+    background: #ffebee !important;
+    color: #c62828 !important;
+    border: 2px solid #f44336 !important;
+  }
+  
+  .hidden-message {
+    display: none !important;
+  }
+  
+  /* Utility classes for inline styles */
+  .coming-soon-title {
+    color: #667eea;
+    margin-bottom: 20px;
+  }
+  
+  .info-box {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+  
+  .info-title {
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+  
+  .info-text {
+    color: #7f8c8d;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  .info-subtitle {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0;
+  }
+  
+  .form-messages-hidden {
+    display: none;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+  }
+  
+  .gradient-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .success-info {
+    background: #e8f5e8;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+  }
+  
+  .success-text {
+    margin: 0;
+    color: #2e7d32;
+  }
 </style>
 
 <!-- Add viewport meta tag for proper mobile scaling -->
@@ -79,15 +153,15 @@
 
 <div class="auth-form-container">
   <h2>✨ Fairytale Genie</h2>
-  <h3 style="color: #667eea; margin-bottom: 20px;">Coming Soon!</h3>
+  <h3 class="coming-soon-title">Coming Soon!</h3>
   
-  <div style="background: #f8f9fa; border-radius: 8px; padding: 25px; margin-bottom: 25px; text-align: center;">
-    <h4 style="color: #2c3e50; margin-bottom: 15px;">🚀 We're Building Something Magical</h4>
-    <p style="color: #7f8c8d; line-height: 1.6; margin-bottom: 20px;">
+  <div class="info-box">
+    <h4 class="info-title">🚀 We're Building Something Magical</h4>
+    <p class="info-text">
       Fairytale Genie is currently under development! We're crafting an amazing AI-powered platform that will create personalized bedtime stories and beautiful illustrations for your children.
     </p>
-    <p style="color: #2c3e50; font-weight: 600; margin-bottom: 0;">
-      Join our waiting list to be the first to know when we launch!
+    <p class="info-subtitle">
+      Join our waitlist to be the first to know when we launch!
     </p>
   </div>
   
@@ -96,11 +170,11 @@
     <input type="hidden" name="_next" value="<%= thankYouUrl %>">
     <!-- Optional: Disable Formspree's default captcha -->
     <input type="hidden" name="_captcha" value="false">
-    <div id="form-messages" style="display: none; padding: 15px; margin-bottom: 20px; border-radius: 6px;"></div>
+    <div id="form-messages" class="form-messages-hidden"></div>
     
     <div class="form-group">
       <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" required autofocus placeholder="Enter your email to join the waiting list">
+      <input type="email" id="email" name="email" required autofocus placeholder="Enter your email to join the waitlist">
     </div>
     
     <div class="form-group">
@@ -113,12 +187,12 @@
       <input type="text" id="children_ages" name="children_ages" placeholder="e.g., 3, 5, 7 years old">
     </div>
     
-    <button type="submit" class="auth-button" id="submit-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-      🎪 Join the Waiting List
+    <button type="submit" class="auth-button gradient-button" id="submit-btn">
+      🎪 Join the Waitlist
     </button>
     
-    <div style="background: #e8f5e8; border-radius: 6px; padding: 15px; margin-top: 20px; font-size: 0.9rem;">
-      <p style="margin: 0; color: #2e7d32;">
+    <div class="success-info">
+      <p class="success-text">
         <strong>What to expect:</strong> Personalized fairytales, AI-generated illustrations, age-appropriate content, and magical bedtime experiences!
       </p>
     </div>
@@ -139,16 +213,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const messages = document.getElementById('form-messages');
   
   function showMessage(type, text) {
-    messages.style.display = 'block';
     messages.className = type === 'success' ? 'success-message' : 'error-message';
-    messages.style.background = type === 'success' ? '#e8f5e8' : '#ffebee';
-    messages.style.color = type === 'success' ? '#2e7d32' : '#c62828';
-    messages.style.border = type === 'success' ? '2px solid #4caf50' : '2px solid #f44336';
     messages.textContent = text;
   }
   
   function hideMessage() {
-    messages.style.display = 'none';
+    messages.className = 'hidden-message';
   }
   
   form.addEventListener('submit', function(e) {
@@ -175,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .then(function(response) {
       if (response.ok) {
-        showMessage('success', '🎉 Thank you for joining our waiting list! We\'ll notify you as soon as Fairytale Genie is ready.');
+        showMessage('success', '🎉 Thank you for joining our waitlist! We\'ll notify you as soon as Fairytale Genie is ready.');
         form.reset();
       } else {
         return response.json().then(function(data) {
@@ -192,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .catch(function(error) {
       console.error('Form submission error:', error);
-      showMessage('error', 'Oops! There was a problem joining the waiting list. Please try again or contact us at info@fairytalegenie.com');
+      showMessage('error', 'Oops! There was a problem joining the waitlist. Please try again or contact us at info@fairytalegenie.com');
     })
     .finally(function() {
       // Reset button state

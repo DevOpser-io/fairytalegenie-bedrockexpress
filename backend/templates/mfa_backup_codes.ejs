@@ -68,6 +68,14 @@
     text-decoration: none;
     border-radius: 4px;
 }
+
+.backup-code {
+    cursor: pointer;
+}
+
+.copy-feedback {
+    background: #d1fae5 !important;
+}
 </style>
 
 <div class="auth-form-container">
@@ -104,16 +112,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const code = this.textContent;
             navigator.clipboard.writeText(code).then(() => {
                 // Visual feedback for copy
-                const originalBackground = this.style.background;
-                this.style.background = '#d1fae5';
+                this.classList.add('copy-feedback');
                 setTimeout(() => {
-                    this.style.background = originalBackground;
+                    this.classList.remove('copy-feedback');
                 }, 1000);
             });
         });
         // Add title attribute to indicate clickable
         codeElement.title = 'Click to copy';
-        codeElement.style.cursor = 'pointer';
+        codeElement.classList.add('backup-code');
     });
 });
 </script>
