@@ -1,0 +1,228 @@
+<% title = 'Terms of Service' %>
+<link rel="stylesheet" href="/static/auth.css">
+<%- include('./partials/favicon') %>
+
+<style nonce="<%= cspNonce %>">
+  .terms-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    line-height: 1.6;
+  }
+  
+  .terms-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #e3f2fd;
+  }
+  
+  .terms-header h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+  }
+  
+  .last-updated {
+    color: #7f8c8d;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+  
+  .terms-content h2 {
+    color: #34495e;
+    font-size: 1.5rem;
+    margin-top: 30px;
+    margin-bottom: 16px;
+    border-left: 4px solid #667eea;
+    padding-left: 16px;
+  }
+  
+  .terms-content h3 {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .terms-content p {
+    color: #34495e;
+    margin-bottom: 16px;
+    text-align: justify;
+  }
+  
+  .terms-content ul {
+    margin: 16px 0;
+    padding-left: 20px;
+  }
+  
+  .terms-content li {
+    color: #34495e;
+    margin-bottom: 8px;
+  }
+  
+  .coppa-notice {
+    background: #fff3cd;
+    border: 2px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+  }
+  
+  .coppa-notice h3 {
+    color: #856404;
+    margin-top: 0;
+  }
+  
+  .coppa-notice p {
+    color: #856404;
+    margin-bottom: 8px;
+  }
+  
+  .contact-info {
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+  }
+  
+  .contact-info h3 {
+    color: #1565c0;
+    margin-top: 0;
+  }
+  
+  .auth-links {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #ecf0f1;
+  }
+  
+  .auth-links a {
+    color: #667eea;
+    text-decoration: none;
+    margin: 0 15px;
+  }
+  
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .terms-container {
+      margin: 20px;
+      padding: 20px;
+    }
+    
+    .terms-header h1 {
+      font-size: 2rem;
+    }
+    
+    .terms-content h2 {
+      font-size: 1.3rem;
+    }
+  }
+</style>
+
+<div class="terms-container">
+  <div class="terms-header">
+    <h1>Terms of Service</h1>
+    <p class="last-updated">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  </div>
+  
+  <div class="terms-content">
+    <div class="coppa-notice">
+      <h3>🛡️ Children's Online Privacy Protection (COPPA) Notice</h3>
+      <p><strong>Important:</strong> Fairytale Genie is designed for families and takes children's privacy seriously. We comply with the Children's Online Privacy Protection Act (COPPA).</p>
+      <p>• We do not knowingly collect personal information from children under 13 without parental consent</p>
+      <p>• Parents/guardians must create and manage accounts for children under 13</p>
+      <p>• We use collected information solely to provide our storytelling service</p>
+      <p>• Parents can review, delete, or refuse further collection of their child's information at any time</p>
+    </div>
+
+    <h2>1. Acceptance of Terms</h2>
+    <p>By accessing and using Fairytale Genie ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+
+    <h2>2. Description of Service</h2>
+    <p>Fairytale Genie is an AI-powered platform that creates personalized fairytales and bedtime stories with custom illustrations based on user inputs such as keywords, story elements, and the child's age.</p>
+
+    <h2>3. User Accounts and Responsibilities</h2>
+    <h3>Account Creation</h3>
+    <ul>
+      <li>Users must be at least 18 years old to create an account</li>
+      <li>Parents/guardians are responsible for managing accounts used by children under 18</li>
+      <li>You are responsible for maintaining the confidentiality of your account credentials</li>
+      <li>You agree to provide accurate and complete information when creating your account</li>
+    </ul>
+
+    <h3>Acceptable Use</h3>
+    <ul>
+      <li>Use the service only for creating appropriate, family-friendly content</li>
+      <li>Do not attempt to generate inappropriate, harmful, or offensive content</li>
+      <li>Do not use the service for any illegal purposes</li>
+      <li>Do not share account credentials with unauthorized users</li>
+    </ul>
+
+    <h2>4. Subscription and Payment Terms</h2>
+    <p>Fairytale Genie operates on a subscription basis at $4.99 per month. By subscribing, you agree to:</p>
+    <ul>
+      <li>Pay the monthly subscription fee in advance</li>
+      <li>Automatic renewal unless cancelled before the next billing cycle</li>
+      <li>All fees are non-refundable except as outlined in our Refund Policy</li>
+      <li>Price changes will be communicated 30 days in advance</li>
+    </ul>
+
+    <h2>5. Content and Intellectual Property</h2>
+    <h3>Generated Content</h3>
+    <ul>
+      <li>Stories and illustrations generated through our service are for your personal, non-commercial use</li>
+      <li>You retain rights to the specific inputs you provide</li>
+      <li>Fairytale Genie retains rights to the AI models and generation technology</li>
+      <li>Generated content may not be resold or distributed commercially without permission</li>
+    </ul>
+
+    <h3>Content Moderation</h3>
+    <p>We use automated systems to ensure all generated content is appropriate for children. We reserve the right to refuse service or terminate accounts that attempt to circumvent our content safety measures.</p>
+
+    <h2>6. Privacy and Data Protection</h2>
+    <p>Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and protect your information. We are committed to COPPA compliance for users under 13.</p>
+
+    <h2>7. Service Availability and Modifications</h2>
+    <ul>
+      <li>We strive to maintain service availability but cannot guarantee uninterrupted access</li>
+      <li>We may modify, suspend, or discontinue the service with reasonable notice</li>
+      <li>We may update these terms from time to time and will notify users of significant changes</li>
+    </ul>
+
+    <h2>8. Limitation of Liability</h2>
+    <p>Fairytale Genie is provided "as is" without warranties of any kind. We are not liable for any indirect, incidental, or consequential damages arising from your use of the service.</p>
+
+    <h2>9. Termination</h2>
+    <p>Either party may terminate this agreement at any time. Upon termination:</p>
+    <ul>
+      <li>Your access to the service will cease</li>
+      <li>You remain responsible for any outstanding fees</li>
+      <li>We may delete your account data in accordance with our Privacy Policy</li>
+    </ul>
+
+    <h2>10. Governing Law</h2>
+    <p>These terms are governed by the laws of the United States. Any disputes will be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.</p>
+
+    <div class="contact-info">
+      <h3>📧 Contact Information</h3>
+      <p>For questions about these Terms of Service or to exercise your COPPA rights, please contact us at:</p>
+      <p><strong>Email:</strong> info@fairytalegenie.com</p>
+    </div>
+  </div>
+  
+  <div class="auth-links">
+    <a href="/pricing">Pricing</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/refund">Refund Policy</a>
+    <a href="/auth/login">Sign In</a>
+    <a href="/auth/signup">Sign Up</a>
+  </div>
+</div>

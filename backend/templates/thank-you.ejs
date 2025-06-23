@@ -1,0 +1,187 @@
+<% title = 'Thank You' %>
+<link rel="stylesheet" href="/static/auth.css">
+<%- include('./partials/favicon') %>
+
+<style nonce="<%= cspNonce %>">
+  .thank-you-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .thank-you-header {
+    margin-bottom: 30px;
+  }
+  
+  .thank-you-header h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+  }
+  
+  .success-message {
+    background: #e8f5e8;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 25px;
+    margin: 30px 0;
+    color: #2e7d32;
+  }
+  
+  .success-message h3 {
+    color: #2e7d32;
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+  
+  .next-steps {
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+    text-align: left;
+  }
+  
+  .next-steps h3 {
+    color: #1565c0;
+    margin-top: 0;
+  }
+  
+  .next-steps ul {
+    color: #1565c0;
+    margin: 16px 0;
+    padding-left: 20px;
+  }
+  
+  .next-steps li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  
+  .cta-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin: 20px 10px;
+  }
+  
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .secondary-button {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+  }
+  
+  .secondary-button:hover {
+    background: #667eea;
+    color: white;
+  }
+  
+  .social-follow {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .auth-links {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #ecf0f1;
+  }
+  
+  .auth-links a {
+    color: #667eea;
+    text-decoration: none;
+    margin: 0 15px;
+  }
+  
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .thank-you-container {
+      margin: 20px;
+      padding: 20px;
+    }
+    
+    .thank-you-header h1 {
+      font-size: 2rem;
+    }
+    
+    .cta-button {
+      display: block;
+      margin: 10px 0;
+      text-align: center;
+    }
+  }
+</style>
+
+<div class="thank-you-container">
+  <div class="thank-you-header">
+    <h1>🎉 Welcome to the Fairytale Genie Family!</h1>
+  </div>
+  
+  <div class="success-message">
+    <h3>✨ Thank You for Joining Our Waiting List!</h3>
+    <p>We're thrilled to have you on board as we prepare to launch Fairytale Genie. You'll be among the first to experience magical, personalized bedtime stories for your children.</p>
+  </div>
+  
+  <div class="next-steps">
+    <h3>📋 What Happens Next?</h3>
+    <ul>
+      <li><strong>Launch Notification:</strong> We'll email you as soon as Fairytale Genie goes live</li>
+      <li><strong>3-Day Free Trial:</strong> You'll get full access to try all premium features</li>
+      <li><strong>Early Access:</strong> Be among the first to create magical stories for your kids</li>
+      <li><strong>Special Offers:</strong> Exclusive discounts and promotions for early supporters</li>
+    </ul>
+  </div>
+  
+  <div class="social-follow">
+    <h3 style="color: #495057; margin-top: 0;">📧 Stay Connected</h3>
+    <p style="color: #6c757d; margin-bottom: 15px;">
+      Have questions or want to learn more? We'd love to hear from you!
+    </p>
+    <p style="color: #495057; font-weight: 600;">
+      Email us at: <a href="mailto:info@fairytalegenie.com" style="color: #667eea;">info@fairytalegenie.com</a>
+    </p>
+  </div>
+  
+  <div style="margin: 30px 0;">
+    <a href="/pricing" class="cta-button">📋 View Pricing</a>
+    <a href="/" class="cta-button secondary-button">🏠 Back to Home</a>
+  </div>
+  
+  <div style="background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 30px 0;">
+    <h4 style="color: #856404; margin-top: 0;">⚡ Development Progress</h4>
+    <p style="color: #856404; margin-bottom: 0;">
+      We're working hard to bring you the best possible experience. Our AI-powered storytelling engine is being fine-tuned to create age-appropriate, engaging, and educational content for children of all ages.
+    </p>
+  </div>
+  
+  <div class="auth-links">
+    <a href="/pricing">Pricing</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/refund">Refund Policy</a>
+  </div>
+</div>

@@ -17,20 +17,10 @@ async function getSecret(secretName, region = config.aws.region, secretType = 'p
   const isEmailSecret = secretName.includes('mail') || secretName.includes('smtp');
   
   try {
-    // Create AWS Secrets Manager client with appropriate credentials
-    let clientOptions = { region };
-    
-    // Only use cross-account role for non-email secrets if specified
-    if (!isEmailSecret && process.env.CUSTOMER_CROSS_ACCOUNT_ROLE_ARN) {
-      console.log(`Using cross-account role: ${process.env.CUSTOMER_CROSS_ACCOUNT_ROLE_ARN}`);
-      clientOptions.credentials = new AWS.ChainableTemporaryCredentials({
-        params: {
-          RoleArn: process.env.CUSTOMER_CROSS_ACCOUNT_ROLE_ARN
-        }
-      });
-    } else {
-      console.log('Using default credentials chain');
-    }
+    // Create AWS Secrets Manager client using default credentials chain
+    // Cross-account role should only be used for Bedrock calls
+    console.log('Using default credentials chain for Secrets Manager');
+    const clientOptions = { region };
     
     const client = new AWS.SecretsManager(clientOptions);
 

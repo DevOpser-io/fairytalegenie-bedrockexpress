@@ -20,6 +20,7 @@ const redisClient = require('./services/redisClient');
 const { configureSession } = require('./config/sessionStore');
 
 // Import route modules
+const indexRoutes = require('./routes/index');
 const apiRoutes = require('./routes/api');
 const chatRoutes = require('./routes/chat');
 const authRoutes = require('./routes/auth');
@@ -75,7 +76,7 @@ app.use(helmet({
         "'sha256-k0WLd3ulXPrpY7QZFCS+T0vX8ftqew4kV7Dl98xSR+o='"  // For bundle.js styles
       ],
       imgSrc: ["'self'", 'data:'],
-      connectSrc: ["'self'", 'https://*.amazonaws.com'], // For AWS services
+      connectSrc: ["'self'", 'https://*.amazonaws.com', 'https://formspree.io'], // For AWS services and Formspree
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -208,6 +209,11 @@ app.use((err, req, res, next) => {
         '/api', // allow API info endpoints
         '/api/health', // allow API health endpoint
         '/admin-panel',     // custom admin panel
+        '/pricing',         // public pricing page
+        '/terms',           // public terms of service
+        '/privacy',         // public privacy policy
+        '/refund',          // public refund policy
+        '/thank-you',       // public thank you page
       ];
 
       // Check if the current path starts with any public path
@@ -272,7 +278,7 @@ app.use((err, req, res, next) => {
     // Make user data available in templates - AFTER session is configured
     app.use((req, res, next) => {
       res.locals.user = req.user || null;
-      res.locals.title = 'Bedrock Express AI Chat';
+      res.locals.title = 'Fairytale Genie';
       res.locals.sessionId = req.session ? req.session.id : 'no-session';
       next();
     });
@@ -302,6 +308,9 @@ app.use((err, req, res, next) => {
     
     // Custom Admin Panel Routes - secure replacement for AdminJS
     app.use('/admin-panel', adminPanelRoutes);
+    
+    // Main routes (includes public pages and redirects)
+    app.use('/', indexRoutes);
     
     // Chat Routes - specifically for chat functionality
     app.use('/', chatRoutes);

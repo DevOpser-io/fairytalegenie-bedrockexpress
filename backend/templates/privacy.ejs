@@ -1,0 +1,342 @@
+<% title = 'Privacy Policy' %>
+<link rel="stylesheet" href="/static/auth.css">
+<%- include('./partials/favicon') %>
+
+<style nonce="<%= cspNonce %>">
+  .privacy-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    line-height: 1.6;
+  }
+  
+  .privacy-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #e3f2fd;
+  }
+  
+  .privacy-header h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+  }
+  
+  .last-updated {
+    color: #7f8c8d;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+  
+  .privacy-content h2 {
+    color: #34495e;
+    font-size: 1.5rem;
+    margin-top: 30px;
+    margin-bottom: 16px;
+    border-left: 4px solid #667eea;
+    padding-left: 16px;
+  }
+  
+  .privacy-content h3 {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .privacy-content p {
+    color: #34495e;
+    margin-bottom: 16px;
+    text-align: justify;
+  }
+  
+  .privacy-content ul {
+    margin: 16px 0;
+    padding-left: 20px;
+  }
+  
+  .privacy-content li {
+    color: #34495e;
+    margin-bottom: 8px;
+  }
+  
+  .coppa-section {
+    background: #e8f5e8;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+  }
+  
+  .coppa-section h3 {
+    color: #2e7d32;
+    margin-top: 0;
+  }
+  
+  .coppa-section p {
+    color: #2e7d32;
+    margin-bottom: 8px;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .data-table th {
+    background: #667eea;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+  
+  .data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #dee2e6;
+    color: #34495e;
+  }
+  
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .security-notice {
+    background: #fff3cd;
+    border: 2px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+  }
+  
+  .security-notice h3 {
+    color: #856404;
+    margin-top: 0;
+  }
+  
+  .contact-info {
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+  }
+  
+  .contact-info h3 {
+    color: #1565c0;
+    margin-top: 0;
+  }
+  
+  .auth-links {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #ecf0f1;
+  }
+  
+  .auth-links a {
+    color: #667eea;
+    text-decoration: none;
+    margin: 0 15px;
+  }
+  
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .privacy-container {
+      margin: 20px;
+      padding: 20px;
+    }
+    
+    .privacy-header h1 {
+      font-size: 2rem;
+    }
+    
+    .privacy-content h2 {
+      font-size: 1.3rem;
+    }
+    
+    .data-table {
+      font-size: 0.9rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+      padding: 8px;
+    }
+  }
+</style>
+
+<div class="privacy-container">
+  <div class="privacy-header">
+    <h1>Privacy Policy</h1>
+    <p class="last-updated">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  </div>
+  
+  <div class="privacy-content">
+    <div class="coppa-section">
+      <h3>🛡️ COPPA Compliance Statement</h3>
+      <p><strong>Fairytale Genie is fully compliant with the Children's Online Privacy Protection Act (COPPA).</strong></p>
+      <p>We are committed to protecting children's privacy online and do not knowingly collect personal information from children under 13 without verifiable parental consent.</p>
+    </div>
+
+    <h2>1. Information We Collect</h2>
+    <p>We collect different types of information to provide and improve our storytelling service:</p>
+    
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Data Type</th>
+          <th>Purpose</th>
+          <th>COPPA Considerations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Account Information</strong><br>Name, email, password</td>
+          <td>Account creation and authentication</td>
+          <td>Only collected from adults (18+) who create accounts</td>
+        </tr>
+        <tr>
+          <td><strong>Story Inputs</strong><br>Keywords, themes, child's age</td>
+          <td>Generate personalized stories</td>
+          <td>Age information used solely for content appropriateness</td>
+        </tr>
+        <tr>
+          <td><strong>Usage Data</strong><br>Stories created, preferences</td>
+          <td>Improve service and personalization</td>
+          <td>Anonymized and not linked to personal identity</td>
+        </tr>
+        <tr>
+          <td><strong>Technical Data</strong><br>IP address, device info</td>
+          <td>Security and service optimization</td>
+          <td>Automatically deleted after 30 days</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>2. How We Use Your Information</h2>
+    <h3>Primary Uses:</h3>
+    <ul>
+      <li><strong>Story Generation:</strong> Create personalized fairytales based on your inputs</li>
+      <li><strong>Age-Appropriate Content:</strong> Ensure stories are suitable for the specified age group</li>
+      <li><strong>Account Management:</strong> Provide access to your saved stories and preferences</li>
+      <li><strong>Service Improvement:</strong> Enhance our AI models and user experience</li>
+      <li><strong>Customer Support:</strong> Respond to inquiries and provide assistance</li>
+    </ul>
+
+    <h3>We Do NOT Use Your Information For:</h3>
+    <ul>
+      <li>Selling or sharing personal data with third parties</li>
+      <li>Targeted advertising</li>
+      <li>Creating detailed profiles for marketing purposes</li>
+      <li>Any purposes unrelated to our storytelling service</li>
+    </ul>
+
+    <h2>3. Children's Privacy (COPPA Compliance)</h2>
+    <div class="coppa-section">
+      <h3>Our COPPA Commitments:</h3>
+      <ul>
+        <li><strong>No Direct Collection:</strong> We do not directly collect personal information from children under 13</li>
+        <li><strong>Parental Control:</strong> Only parents/guardians (18+) can create accounts</li>
+        <li><strong>Minimal Data:</strong> We only collect the minimum information necessary to provide our service</li>
+        <li><strong>No Behavioral Tracking:</strong> We do not track children's online behavior across other websites</li>
+        <li><strong>Secure Deletion:</strong> Parents can request deletion of any information at any time</li>
+      </ul>
+      
+      <h3>Parental Rights Under COPPA:</h3>
+      <ul>
+        <li>Review any personal information we have about your child</li>
+        <li>Request deletion of your child's information</li>
+        <li>Refuse to allow further collection of your child's information</li>
+        <li>Receive notification of our information practices</li>
+      </ul>
+    </div>
+
+    <h2>4. Data Sharing and Third Parties</h2>
+    <p>We have a strict policy regarding data sharing:</p>
+    
+    <h3>We Share Information Only With:</h3>
+    <ul>
+      <li><strong>AWS Services:</strong> For secure hosting and AI processing (covered by AWS COPPA compliance)</li>
+      <li><strong>Payment Processors:</strong> For subscription billing (no personal data beyond payment info)</li>
+      <li><strong>Legal Requirements:</strong> When required by law or to protect rights and safety</li>
+    </ul>
+
+    <h3>We Never Share Information With:</h3>
+    <ul>
+      <li>Advertising companies</li>
+      <li>Data brokers</li>
+      <li>Social media platforms</li>
+      <li>Marketing companies</li>
+      <li>Any entity for commercial purposes unrelated to our service</li>
+    </ul>
+
+    <h2>5. Data Security</h2>
+    <div class="security-notice">
+      <h3>🔒 Security Measures</h3>
+      <p>We implement industry-standard security measures to protect your information:</p>
+      <ul>
+        <li>Encryption in transit and at rest</li>
+        <li>Regular security audits and monitoring</li>
+        <li>Limited access to personal data on a need-to-know basis</li>
+        <li>Secure cloud infrastructure with AWS</li>
+        <li>Multi-factor authentication for admin access</li>
+      </ul>
+    </div>
+
+    <h2>6. Data Retention</h2>
+    <p>We retain information only as long as necessary:</p>
+    <ul>
+      <li><strong>Account Data:</strong> Until account deletion</li>
+      <li><strong>Story Content:</strong> Until you delete or account closure</li>
+      <li><strong>Usage Logs:</strong> 30 days for technical purposes</li>
+      <li><strong>Payment Records:</strong> As required by law (typically 7 years)</li>
+    </ul>
+
+    <h2>7. Your Rights and Choices</h2>
+    <h3>You Have the Right To:</h3>
+    <ul>
+      <li>Access your personal information</li>
+      <li>Correct inaccurate information</li>
+      <li>Delete your account and associated data</li>
+      <li>Export your story content</li>
+      <li>Opt out of non-essential communications</li>
+      <li>Request information about our data practices</li>
+    </ul>
+
+    <h2>8. International Users</h2>
+    <p>Fairytale Genie is based in the United States. If you use our service from outside the US, your information may be transferred to and processed in the United States, where privacy laws may differ from your jurisdiction.</p>
+
+    <h2>9. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. We will:</p>
+    <ul>
+      <li>Notify users of material changes via email</li>
+      <li>Post the updated policy on our website</li>
+      <li>For COPPA-related changes, provide 30 days' notice to parents</li>
+    </ul>
+
+    <div class="contact-info">
+      <h3>📧 Contact Us</h3>
+      <p>For privacy questions, COPPA requests, or to exercise your rights:</p>
+      <p><strong>Email:</strong> info@fairytalegenie.com</p>
+    </div>
+  </div>
+  
+  <div class="auth-links">
+    <a href="/pricing">Pricing</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/refund">Refund Policy</a>
+    <a href="/auth/login">Sign In</a>
+    <a href="/auth/signup">Sign Up</a>
+  </div>
+</div>

@@ -1,0 +1,374 @@
+<% title = 'Refund Policy' %>
+<link rel="stylesheet" href="/static/auth.css">
+<%- include('./partials/favicon') %>
+
+<style nonce="<%= cspNonce %>">
+  .refund-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    line-height: 1.6;
+  }
+  
+  .refund-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #e3f2fd;
+  }
+  
+  .refund-header h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+  }
+  
+  .last-updated {
+    color: #7f8c8d;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+  
+  .refund-content h2 {
+    color: #34495e;
+    font-size: 1.5rem;
+    margin-top: 30px;
+    margin-bottom: 16px;
+    border-left: 4px solid #667eea;
+    padding-left: 16px;
+  }
+  
+  .refund-content h3 {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .refund-content p {
+    color: #34495e;
+    margin-bottom: 16px;
+    text-align: justify;
+  }
+  
+  .refund-content ul {
+    margin: 16px 0;
+    padding-left: 20px;
+  }
+  
+  .refund-content li {
+    color: #34495e;
+    margin-bottom: 8px;
+  }
+  
+  .policy-highlight {
+    background: #e8f5e8;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+  }
+  
+  .policy-highlight h3 {
+    color: #2e7d32;
+    margin-top: 0;
+  }
+  
+  .policy-highlight p {
+    color: #2e7d32;
+    margin-bottom: 8px;
+  }
+  
+  .warning-box {
+    background: #fff3cd;
+    border: 2px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+  }
+  
+  .warning-box h3 {
+    color: #856404;
+    margin-top: 0;
+  }
+  
+  .warning-box p {
+    color: #856404;
+    margin-bottom: 8px;
+  }
+  
+  .refund-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .refund-table th {
+    background: #667eea;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+  
+  .refund-table td {
+    padding: 12px;
+    border-bottom: 1px solid #dee2e6;
+    color: #34495e;
+  }
+  
+  .refund-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .process-steps {
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+  }
+  
+  .process-steps h3 {
+    color: #1565c0;
+    margin-top: 0;
+  }
+  
+  .process-steps ol {
+    color: #1565c0;
+    margin: 16px 0;
+    padding-left: 20px;
+  }
+  
+  .process-steps li {
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  
+  .contact-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+    border: 1px solid #dee2e6;
+  }
+  
+  .contact-info h3 {
+    color: #495057;
+    margin-top: 0;
+  }
+  
+  .auth-links {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #ecf0f1;
+  }
+  
+  .auth-links a {
+    color: #667eea;
+    text-decoration: none;
+    margin: 0 15px;
+  }
+  
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .refund-container {
+      margin: 20px;
+      padding: 20px;
+    }
+    
+    .refund-header h1 {
+      font-size: 2rem;
+    }
+    
+    .refund-content h2 {
+      font-size: 1.3rem;
+    }
+    
+    .refund-table {
+      font-size: 0.9rem;
+    }
+    
+    .refund-table th,
+    .refund-table td {
+      padding: 8px;
+    }
+  }
+</style>
+
+<div class="refund-container">
+  <div class="refund-header">
+    <h1>Refund Policy</h1>
+    <p class="last-updated">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  </div>
+  
+  <div class="refund-content">
+    <div class="policy-highlight">
+      <h3>💰 Our Fair Refund Promise</h3>
+      <p>At Fairytale Genie, we want you to be completely satisfied with our service. We offer a straightforward refund policy designed to be fair to both our customers and our business.</p>
+    </div>
+
+    <h2>1. Free Trial Period</h2>
+    <p>All new subscribers receive a <strong>3-day free trial</strong> when they first sign up for Fairytale Genie Premium. During this trial period:</p>
+    <ul>
+      <li>You have full access to all premium features</li>
+      <li>You can cancel at any time without charge</li>
+      <li>No refund is necessary as you haven't been charged yet</li>
+      <li>Your subscription will automatically begin after the trial ends</li>
+    </ul>
+
+    <h2>2. Refund Eligibility</h2>
+    <table class="refund-table">
+      <thead>
+        <tr>
+          <th>Situation</th>
+          <th>Refund Available</th>
+          <th>Conditions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Technical Issues</strong><br>Service unavailable or malfunctioning</td>
+          <td>✅ Full Refund</td>
+          <td>Must report within 7 days of billing</td>
+        </tr>
+        <tr>
+          <td><strong>Billing Errors</strong><br>Incorrect charges or duplicate billing</td>
+          <td>✅ Full Refund</td>
+          <td>Must report within 30 days</td>
+        </tr>
+        <tr>
+          <td><strong>Dissatisfaction</strong><br>Service doesn't meet expectations</td>
+          <td>✅ Partial Refund</td>
+          <td>Pro-rated for unused portion, request within 14 days</td>
+        </tr>
+        <tr>
+          <td><strong>Account Compromise</strong><br>Unauthorized use of account</td>
+          <td>✅ Full Refund</td>
+          <td>Must report immediately and cooperate with investigation</td>
+        </tr>
+        <tr>
+          <td><strong>Change of Mind</strong><br>No longer need the service</td>
+          <td>❌ No Refund</td>
+          <td>Use free trial period to evaluate service</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3. Refund Timeframes</h2>
+    <h3>When You Can Request a Refund:</h3>
+    <ul>
+      <li><strong>Technical Issues:</strong> Within 7 days of the billing date</li>
+      <li><strong>Dissatisfaction:</strong> Within 14 days of the billing date</li>
+      <li><strong>Billing Errors:</strong> Within 30 days of the charge</li>
+      <li><strong>Unauthorized Charges:</strong> Within 60 days of discovery</li>
+    </ul>
+
+    <div class="warning-box">
+      <h3>⚠️ Important Limitations</h3>
+      <ul>
+        <li>Refunds are only available for the most recent billing cycle</li>
+        <li>Excessive refund requests may result in account termination</li>
+        <li>Refunds for gift subscriptions follow the same policy</li>
+        <li>Processing fees (where applicable) are non-refundable</li>
+      </ul>
+    </div>
+
+    <h2>4. How to Request a Refund</h2>
+    <div class="process-steps">
+      <h3>📋 Refund Request Process</h3>
+      <ol>
+        <li><strong>Contact Support:</strong> Email us at info@fairytalegenie.com with your account details</li>
+        <li><strong>Provide Information:</strong> Include your reason for the refund request and relevant details</li>
+        <li><strong>Wait for Review:</strong> We'll review your request within 2-3 business days</li>
+        <li><strong>Receive Decision:</strong> You'll get an email with our decision and next steps</li>
+        <li><strong>Processing:</strong> Approved refunds are processed within 5-7 business days</li>
+      </ol>
+    </div>
+
+    <h3>Required Information for Refund Requests:</h3>
+    <ul>
+      <li>Account email address</li>
+      <li>Approximate date of the charge</li>
+      <li>Reason for refund request</li>
+      <li>Any relevant screenshots or error messages</li>
+      <li>Last 4 digits of the payment method used</li>
+    </ul>
+
+    <h2>5. Refund Processing</h2>
+    <h3>Processing Times:</h3>
+    <ul>
+      <li><strong>Credit Cards:</strong> 5-7 business days</li>
+      <li><strong>PayPal:</strong> 3-5 business days</li>
+      <li><strong>Bank Transfers:</strong> 7-10 business days</li>
+    </ul>
+
+    <p><strong>Note:</strong> Refund processing times depend on your payment provider and may take longer during holidays or weekends.</p>
+
+    <h2>6. Cancellation vs. Refund</h2>
+    <h3>Cancellation:</h3>
+    <ul>
+      <li>Stops future billing immediately</li>
+      <li>You keep access until the end of your current billing period</li>
+      <li>No refund for the current period (unless eligible above)</li>
+      <li>Can be done anytime through your account settings</li>
+    </ul>
+
+    <h3>Refund:</h3>
+    <ul>
+      <li>Returns money for current or recent billing period</li>
+      <li>May result in immediate loss of access to premium features</li>
+      <li>Requires approval based on our refund policy</li>
+      <li>Must be requested through customer support</li>
+    </ul>
+
+    <h2>7. Special Circumstances</h2>
+    <h3>Family Accounts:</h3>
+    <p>For accounts primarily used by children under 18, parents/guardians can request refunds on behalf of their family members under the same conditions as regular accounts.</p>
+
+    <h3>Educational Discounts:</h3>
+    <p>Accounts with educational discounts follow the same refund policy, but the refund amount will be based on the discounted price paid.</p>
+
+    <h2>8. Dispute Resolution</h2>
+    <p>If you're not satisfied with our refund decision:</p>
+    <ul>
+      <li>You can appeal by providing additional information</li>
+      <li>We'll conduct a secondary review within 5 business days</li>
+      <li>For unresolved disputes, you may contact your payment provider</li>
+      <li>Legal disputes are subject to binding arbitration as outlined in our Terms of Service</li>
+    </ul>
+
+    <div class="contact-info">
+      <h3>📧 Contact Information</h3>
+      <p>For refund requests or questions about this policy:</p>
+      <p><strong>Email:</strong> info@fairytalegenie.com</p>
+      <p><strong>Response Time:</strong> We aim to respond to all refund requests within 24-48 hours</p>
+    </div>
+
+    <h2>9. Policy Changes</h2>
+    <p>We reserve the right to modify this refund policy at any time. Changes will:</p>
+    <ul>
+      <li>Be posted on this page with an updated "Last Updated" date</li>
+      <li>Be communicated to active subscribers via email</li>
+      <li>Take effect 30 days after notification</li>
+      <li>Not affect refund requests submitted before the change</li>
+    </ul>
+  </div>
+  
+  <div class="auth-links">
+    <a href="/pricing">Pricing</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/auth/login">Sign In</a>
+    <a href="/auth/signup">Sign Up</a>
+  </div>
+</div>

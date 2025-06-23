@@ -3,78 +3,128 @@
 <%- include('./partials/favicon') %>
 
 <div class="auth-form-container">
-  <h2>Create an Account</h2>
+  <h2>✨ Fairytale Genie</h2>
+  <h3 style="color: #667eea; margin-bottom: 20px;">Coming Soon!</h3>
   
-  <% if (typeof error !== 'undefined' && error) { %>
-    <div class="flash error">
-      <%= error %>
-    </div>
-  <% } %>
-  <% if (typeof message !== 'undefined' && message) { %>
-    <div class="flash info">
-      <%= message %>
-    </div>
-  <% } %>
+  <div style="background: #f8f9fa; border-radius: 8px; padding: 25px; margin-bottom: 25px; text-align: center;">
+    <h4 style="color: #2c3e50; margin-bottom: 15px;">🚀 We're Building Something Magical</h4>
+    <p style="color: #7f8c8d; line-height: 1.6; margin-bottom: 20px;">
+      Fairytale Genie is currently under development! We're crafting an amazing AI-powered platform that will create personalized bedtime stories and beautiful illustrations for your children.
+    </p>
+    <p style="color: #2c3e50; font-weight: 600; margin-bottom: 0;">
+      Join our waiting list to be the first to know when we launch!
+    </p>
+  </div>
   
-  <form id="signup-form" method="POST" action="/auth/signup" class="auth-form">
+  <form action="https://formspree.io/f/xdkzwwjb" method="POST" class="auth-form" id="waitlist-form">
+    <!-- Hidden field to redirect to our thank you page if JavaScript is disabled -->
+    <input type="hidden" name="_next" value="<%= thankYouUrl %>">
+    <!-- Optional: Disable Formspree's default captcha -->
+    <input type="hidden" name="_captcha" value="false">
+    <div id="form-messages" style="display: none; padding: 15px; margin-bottom: 20px; border-radius: 6px;"></div>
     
     <div class="form-group">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" name="name" required autofocus>
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required autofocus placeholder="Enter your email to join the waiting list">
     </div>
     
     <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required>
+      <label for="name">Parent/Guardian Name (Optional)</label>
+      <input type="text" id="name" name="name" placeholder="Your name">
     </div>
     
     <div class="form-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" minlength="8" required>
-      <small style="color: #666; font-size: 0.85em;">Password must be at least 8 characters</small>
+      <label for="children_ages">Children's Ages (Optional)</label>
+      <input type="text" id="children_ages" name="children_ages" placeholder="e.g., 3, 5, 7 years old">
     </div>
     
-    <div class="form-group">
-      <label for="confirm-password">Confirm Password</label>
-      <input type="password" id="confirm-password" name="confirmPassword" required>
-    </div>
+    <button type="submit" class="auth-button" id="submit-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      🎪 Join the Waiting List
+    </button>
     
-    <button type="submit" class="auth-button">Sign Up</button>
+    <div style="background: #e8f5e8; border-radius: 6px; padding: 15px; margin-top: 20px; font-size: 0.9rem;">
+      <p style="margin: 0; color: #2e7d32;">
+        <strong>What to expect:</strong> Personalized fairytales, AI-generated illustrations, age-appropriate content, and magical bedtime experiences!
+      </p>
+    </div>
     
     <div class="auth-links">
-      Already have an account? <a href="/auth/login">Login</a>
+      <a href="/pricing">Pricing</a> • 
+      <a href="/terms">Terms</a> • 
+      <a href="/privacy">Privacy</a> • 
+      <a href="/refund">Refunds</a>
     </div>
   </form>
 </div>
 
 <script nonce="<%= cspNonce %>">
-document.getElementById('signup-form').addEventListener('submit', function(e) {
-  // Only validate passwords, then let the form submit normally
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirm-password').value;
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('waitlist-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const messages = document.getElementById('form-messages');
   
-  if (password !== confirmPassword) {
-    e.preventDefault();
-    
-    // Remove any existing error messages
-    const existingErrors = document.querySelectorAll('.flash.error');
-    existingErrors.forEach(el => el.remove());
-    
-    // Create and show error message
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'flash error';
-    errorDiv.textContent = 'Passwords do not match';
-    
-    // Insert at the top of the form container
-    const container = document.querySelector('.auth-form-container');
-    container.insertBefore(errorDiv, container.querySelector('h2').nextSibling);
-    
-    // Scroll to the top to show the error
-    window.scrollTo(0, 0);
-    return false;
+  function showMessage(type, text) {
+    messages.style.display = 'block';
+    messages.className = type === 'success' ? 'success-message' : 'error-message';
+    messages.style.background = type === 'success' ? '#e8f5e8' : '#ffebee';
+    messages.style.color = type === 'success' ? '#2e7d32' : '#c62828';
+    messages.style.border = type === 'success' ? '2px solid #4caf50' : '2px solid #f44336';
+    messages.textContent = text;
   }
   
-  // If passwords match, let the form submit normally
-  // The server will handle the redirect to the login page
+  function hideMessage() {
+    messages.style.display = 'none';
+  }
+  
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Hide any previous messages
+    hideMessage();
+    
+    // Update button state
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Joining...';
+    submitBtn.disabled = true;
+    
+    // Prepare form data
+    const formData = new FormData(form);
+    
+    // Submit to Formspree
+    fetch('https://formspree.io/f/xdkzwwjb', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) {
+        showMessage('success', '🎉 Thank you for joining our waiting list! We\'ll notify you as soon as Fairytale Genie is ready.');
+        form.reset();
+      } else {
+        return response.json().then(function(data) {
+          if (data.errors) {
+            const errorMessages = data.errors.map(function(error) {
+              return error.message;
+            }).join(', ');
+            throw new Error(errorMessages);
+          } else {
+            throw new Error('There was a problem submitting your form. Please try again.');
+          }
+        });
+      }
+    })
+    .catch(function(error) {
+      console.error('Form submission error:', error);
+      showMessage('error', 'Oops! There was a problem joining the waiting list. Please try again or contact us at info@fairytalegenie.com');
+    })
+    .finally(function() {
+      // Reset button state
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    });
+  });
 });
 </script>
+

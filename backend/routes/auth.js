@@ -31,10 +31,12 @@ router.get('/login', (req, res) => {
   // Render login page with flash messages if available
   const message = req.flash('message') || req.query.message;
   const error = req.flash('error') || req.query.error;
+  const thankYouUrl = getFullUrl(req, '/thank-you');
   
   res.render('login', {
     error: error,
-    message: message
+    message: message,
+    thankYouUrl: thankYouUrl
   });
 });
 
@@ -148,9 +150,12 @@ router.post(
 // GET /auth/signup
 router.get('/signup', (req, res) => {
   // Render signup page
+  const thankYouUrl = getFullUrl(req, '/thank-you');
+  
   res.render('signup', {
     error: req.query.error,
-    message: req.query.message
+    message: req.query.message,
+    thankYouUrl: thankYouUrl
   });
 });
 

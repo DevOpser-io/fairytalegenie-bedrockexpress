@@ -1,0 +1,185 @@
+<% title = 'Pricing' %>
+<link rel="stylesheet" href="/static/auth.css">
+<%- include('./partials/favicon') %>
+
+<style nonce="<%= cspNonce %>">
+  .pricing-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .pricing-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .pricing-header h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+  }
+  
+  .pricing-header p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  
+  .pricing-card {
+    border: 2px solid #e3f2fd;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .pricing-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .price {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 20px 0;
+  }
+  
+  .price-period {
+    font-size: 1rem;
+    color: #7f8c8d;
+    font-weight: normal;
+  }
+  
+  .pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 30px 0;
+  }
+  
+  .pricing-features li {
+    padding: 12px 0;
+    border-bottom: 1px solid #ecf0f1;
+    color: #34495e;
+    font-size: 1.1rem;
+  }
+  
+  .pricing-features li:last-child {
+    border-bottom: none;
+  }
+  
+  .pricing-features li::before {
+    content: '✨';
+    margin-right: 12px;
+  }
+  
+  .cta-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin: 20px 0;
+  }
+  
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .auth-links {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ecf0f1;
+  }
+  
+  .auth-links a {
+    color: #667eea;
+    text-decoration: none;
+    margin: 0 15px;
+  }
+  
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .pricing-container {
+      margin: 20px;
+      padding: 20px;
+    }
+    
+    .pricing-header h1 {
+      font-size: 2rem;
+    }
+    
+    .pricing-card {
+      padding: 20px;
+    }
+    
+    .price {
+      font-size: 2.5rem;
+    }
+  }
+</style>
+
+<div class="pricing-container">
+  <div class="pricing-header">
+    <h1>✨ Fairytale Genie Premium</h1>
+    <p>Create magical, personalized bedtime stories for your children with AI-powered storytelling and beautiful illustrations</p>
+  </div>
+  
+  <div class="pricing-card">
+    <h2>Premium Subscription</h2>
+    <div class="price">
+      $4.99
+      <span class="price-period">/ month</span>
+    </div>
+    
+    <ul class="pricing-features">
+      <li>Unlimited custom fairytales</li>
+      <li>AI-generated story illustrations</li>
+      <li>Age-appropriate content filtering</li>
+      <li>Multiple story themes and genres</li>
+      <li>Save and revisit favorite stories</li>
+      <li>High-quality image generation</li>
+      <li>Family-safe content guarantee</li>
+      <li>New story elements added monthly</li>
+    </ul>
+    
+    <a href="/auth/signup" class="cta-button">🎪 Join the Waiting List</a>
+    
+    <div style="background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 8px; padding: 15px; margin-top: 20px;">
+      <p style="color: #856404; font-size: 0.9rem; margin: 0; text-align: center;">
+        <strong>⏰ Coming Soon!</strong> We're currently developing this magical experience. Join our waiting list to be the first to know when we launch with our 3-day free trial!
+      </p>
+    </div>
+  </div>
+  
+  <div class="auth-links">
+    <a href="/auth/signup">Join Waiting List</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/refund">Refund Policy</a>
+  </div>
+</div>

@@ -16,9 +16,31 @@ router.get('/', (req, res) => {
   return res.redirect('/auth/login');
 });
 
+
 // Health check endpoint
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Public pages for logged out users
+router.get('/pricing', (req, res) => {
+  res.render('pricing');
+});
+
+router.get('/terms', (req, res) => {
+  res.render('terms');
+});
+
+router.get('/privacy', (req, res) => {
+  res.render('privacy');
+});
+
+router.get('/refund', (req, res) => {
+  res.render('refund');
+});
+
+router.get('/thank-you', (req, res) => {
+  res.render('thank-you');
 });
 
 // Mount API routes (no authentication required for basic info endpoints)
