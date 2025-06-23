@@ -1,209 +1,129 @@
-/**
- * Script to rollback database migrations
- * This script ensures that config.json is created before running rollback
- */
+// File: backend/scripts/run-prod-rollback.js
+
 const fs = require('fs');
 const path = require('path');
-const { execSync, spawnSync } = require('child_process');
+const { execSync } = require('child_process');
+const { getSecret } = require('../services/secretsManager'); // use existing getSecret()
+require('dotenv').config(); // load any .env if needed
 
-// Set NODE_ENV to production
-process.env.NODE_ENV = 'production';
-
-console.log('=== Migration Rollback Script ===');
-console.log(`Current NODE_ENV: ${process.env.NODE_ENV}`);
-console.log(`Current directory: ${process.cwd()}`);
-
-// Check if required environment variables are set
-console.log('Checking for required environment variables:');
-console.log(`DB_USER_SECRET_NAME: ${process.env.DB_USER_SECRET_NAME ? 'Set' : 'Not set'}`);
-console.log(`DB_PASSWORD_SECRET_NAME: ${process.env.DB_PASSWORD_SECRET_NAME ? 'Set' : 'Not set'}`);
-console.log(`DB_NAME_SECRET_NAME: ${process.env.DB_NAME_SECRET_NAME ? 'Set' : 'Not set'}`);
-console.log(`DB_HOST_SECRET_NAME: ${process.env.DB_HOST_SECRET_NAME ? 'Set' : 'Not set'}`);
-console.log(`DB_PORT_SECRET_NAME: ${process.env.DB_PORT_SECRET_NAME ? 'Set' : 'Not set'}`);
-
-// Create .sequelizerc file if it doesn't exist
-const sequelizeRcPath = path.resolve(process.cwd(), '.sequelizerc');
-if (!fs.existsSync(sequelizeRcPath)) {
-  console.log(`Creating .sequelizerc at ${sequelizeRcPath}`);
-  const sequelizeRcContent = `const path = require('path');
-
-module.exports = {
-  'config': path.resolve('config', 'config.json'),
-  'models-path': path.resolve('models'),
-  'seeders-path': path.resolve('seeders'),
-  'migrations-path': path.resolve('migrations')
-};
-`;
-  fs.writeFileSync(sequelizeRcPath, sequelizeRcContent, 'utf8');
-  console.log('.sequelizerc file created successfully');
-}
-
-// Create a direct database config with the secrets
-const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
-
-async function getSecret(secretName, region = process.env.REGION || 'us-east-1') {
-  if (!secretName) {
-    console.error('Secret name not provided');
-    return null;
-  }
-  
-  console.log(`Retrieving secret: ${secretName} from region: ${region}`);
+(async () => {
+  let tmpConfigPath = null;
   
   try {
-    const client = new SecretsManagerClient({ region });
-    const command = new GetSecretValueCommand({ SecretId: secretName });
-    const response = await client.send(command);
-    
-    if (response.SecretString) {
-      console.log(`Successfully retrieved secret: ${secretName}`);
-      return response.SecretString;
-    } else {
-      console.error(`Secret ${secretName} has no string value`);
-      return null;
-    }
-  } catch (error) {
-    console.error(`Error retrieving secret ${secretName}: ${error.message}`);
-    return null;
-  }
-}
+    console.log('=== Starting production rollback script ===');
 
-async function generateConfigJson() {
-  // Create a direct database config with the secrets
-  const dbConfig = {
-    development: {
-      username: 'devuser',
-      password: 'password',
-      database: 'devdb',
-      host: 'localhost',
-      port: 5432,
-      dialect: 'postgres',
-      logging: false
-    },
-    test: {
-      username: 'devuser',
-      password: 'password',
-      database: 'devdb',
-      host: 'localhost',
-      port: 5432,
-      dialect: 'postgres',
-      logging: false
-    },
-    production: {
-      username: 'devuser',
-      password: 'password',
-      database: 'devdb',
-      host: 'localhost',
-      port: 5432,
-      dialect: 'postgres',
-      logging: false,
-      dialectOptions: process.env.DB_REQUIRE_SSL === 'true' ? {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
+    // 1. Pull region and secret-names from env
+    const region              = process.env.REGION              || 'us-east-1';
+    const dbNameSecretName    = process.env.DB_NAME_SECRET_NAME;
+    const dbUserSecretName    = process.env.DB_USER_SECRET_NAME;
+    const dbPasswordSecretName= process.env.DB_PASSWORD_SECRET_NAME;
+    const dbHostSecretName    = process.env.DB_HOST_SECRET_NAME;
+    const dbPortSecretName    = process.env.DB_PORT_SECRET_NAME;
+
+    // 2. Ensure all five are present
+    const missing = [];
+    if (!dbNameSecretName)     missing.push('DB_NAME_SECRET_NAME');
+    if (!dbUserSecretName)     missing.push('DB_USER_SECRET_NAME');
+    if (!dbPasswordSecretName) missing.push('DB_PASSWORD_SECRET_NAME');
+    if (!dbHostSecretName)     missing.push('DB_HOST_SECRET_NAME');
+    if (!dbPortSecretName)     missing.push('DB_PORT_SECRET_NAME');
+    if (missing.length) {
+      console.error(`Missing required environment variables: ${missing.join(', ')}`);
+      process.exit(1);
+    }
+
+    // 3. Fetch each secret (throws if anything goes wrong)
+    console.log(`Fetching DB_NAME from Secrets Manager ("${dbNameSecretName}")`);
+    const dbName     = await getSecret(dbNameSecretName, region);
+    if (!dbName)     throw new Error(`Secret ${dbNameSecretName} returned empty`);
+    console.log(`→ DB_NAME retrieved`);
+
+    console.log(`Fetching DB_USER from Secrets Manager ("${dbUserSecretName}")`);
+    const dbUser     = await getSecret(dbUserSecretName, region);
+    if (!dbUser)     throw new Error(`Secret ${dbUserSecretName} returned empty`);
+    console.log(`→ DB_USER retrieved`);
+
+    console.log(`Fetching DB_PASSWORD from Secrets Manager ("${dbPasswordSecretName}")`);
+    const dbPassword = await getSecret(dbPasswordSecretName, region);
+    if (!dbPassword) throw new Error(`Secret ${dbPasswordSecretName} returned empty`);
+    console.log(`→ DB_PASSWORD retrieved (hidden)`);
+
+    console.log(`Fetching DB_HOST from Secrets Manager ("${dbHostSecretName}")`);
+    const dbHost     = await getSecret(dbHostSecretName, region);
+    if (!dbHost)     throw new Error(`Secret ${dbHostSecretName} returned empty`);
+    console.log(`→ DB_HOST retrieved`);
+
+    console.log(`Fetching DB_PORT from Secrets Manager ("${dbPortSecretName}")`);
+    const rawPort    = await getSecret(dbPortSecretName, region);
+    if (!rawPort)    throw new Error(`Secret ${dbPortSecretName} returned empty`);
+    const dbPort     = parseInt(rawPort, 10);
+    if (Number.isNaN(dbPort)) throw new Error(`Invalid port from ${dbPortSecretName}: "${rawPort}"`);
+    console.log(`→ DB_PORT = ${dbPort}`);
+
+    // 4. Build the Sequelize config JSON
+    const sequelizeConfig = {
+      development: {
+        username: 'devuser',
+        password: 'password',
+        database: 'devdb',
+        host:     'localhost',
+        port:     5432,
+        dialect:  'postgres',
+        logging:  false
+      },
+      production: {
+        username: dbUser,
+        password: dbPassword,
+        database: dbName,
+        host:     dbHost,
+        port:     dbPort,
+        dialect:  'postgres',
+        logging:  console.log,
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false
+          }
         }
-      } : {}
-    }
-  };
-
-  // If in production mode and we have secret names, retrieve the secrets
-  if (process.env.NODE_ENV === 'production') {
-    if (process.env.DB_USER_SECRET_NAME) {
-      const dbUser = await getSecret(process.env.DB_USER_SECRET_NAME);
-      if (dbUser) {
-        dbConfig.production.username = dbUser;
-        console.log(`Updated username from secret ${process.env.DB_USER_SECRET_NAME}`);
       }
+    };
+
+    // 5. Write it to a temp config file
+    const tempDir = path.resolve(__dirname, '../temp');
+    tmpConfigPath = path.resolve(tempDir, 'prod-db-config.json');
+    fs.mkdirSync(tempDir, { recursive: true });
+    fs.writeFileSync(tmpConfigPath, JSON.stringify(sequelizeConfig, null, 2));
+    console.log(`Wrote Sequelize config → ${tmpConfigPath}`);
+
+    // 6. Finally, run Sequelize CLI rollback (undo the last migration)
+    console.log('Running `npx sequelize-cli db:migrate:undo --env production --config ' + tmpConfigPath + '`');
+    execSync(
+      `npx sequelize-cli db:migrate:undo --env production --config "${tmpConfigPath}"`,
+      { stdio: 'inherit', cwd: path.resolve(__dirname, '..') }
+    );
+
+    // 7. Clean up the temporary config file
+    if (tmpConfigPath && fs.existsSync(tmpConfigPath)) {
+      fs.unlinkSync(tmpConfigPath);
+      console.log(`Removed temporary config file`);
     }
 
-    if (process.env.DB_PASSWORD_SECRET_NAME) {
-      const dbPassword = await getSecret(process.env.DB_PASSWORD_SECRET_NAME);
-      if (dbPassword) {
-        dbConfig.production.password = dbPassword;
-        console.log(`Updated password from secret ${process.env.DB_PASSWORD_SECRET_NAME}`);
-      }
-    }
+    console.log('=== Rollback complete! ===');
+    process.exit(0);
 
-    if (process.env.DB_NAME_SECRET_NAME) {
-      const dbName = await getSecret(process.env.DB_NAME_SECRET_NAME);
-      if (dbName) {
-        dbConfig.production.database = dbName;
-        console.log(`Updated database name to ${dbConfig.production.database} from secret ${process.env.DB_NAME_SECRET_NAME}`);
-      }
-    }
-
-    if (process.env.DB_HOST_SECRET_NAME) {
-      const dbHost = await getSecret(process.env.DB_HOST_SECRET_NAME);
-      if (dbHost) {
-        dbConfig.production.host = dbHost;
-        console.log(`Updated host to ${dbConfig.production.host} from secret ${process.env.DB_HOST_SECRET_NAME}`);
-      }
-    }
-
-    if (process.env.DB_PORT_SECRET_NAME) {
-      const dbPort = await getSecret(process.env.DB_PORT_SECRET_NAME);
-      if (dbPort) {
-        dbConfig.production.port = parseInt(dbPort, 10);
-        console.log(`Updated port to ${dbConfig.production.port} from secret ${process.env.DB_PORT_SECRET_NAME}`);
-      }
-    }
-  }
-
-  // Create the config directory if it doesn't exist
-  const configDir = path.resolve(process.cwd(), 'config');
-  if (!fs.existsSync(configDir)) {
-    fs.mkdirSync(configDir, { recursive: true });
-  }
-
-  // Write the configuration to config.json
-  const configPath = path.resolve(configDir, 'config.json');
-  console.log(`Generating config.json at ${configPath}`);
-
-  fs.writeFileSync(
-    configPath,
-    JSON.stringify(dbConfig, null, 2)
-  );
-
-  console.log('Configuration written to config.json');
-  console.log('Production configuration:', {
-    ...dbConfig.production,
-    password: '***MASKED***'
-  });
-
-  return dbConfig;
-}
-
-// Main function to run rollback
-async function runRollback() {
-  try {
-    // Generate config.json with the latest secrets
-    await generateConfigJson();
+  } catch (err) {
+    console.error('*** Rollback failed: ', err);
     
-    // Run the rollback (undo the last migration)
-    console.log('\n=== Rolling back last database migration ===');
-    
-    const result = spawnSync('npx', ['sequelize-cli', 'db:migrate:undo'], {
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        NODE_ENV: 'production',
-        DB_REQUIRE_SSL: 'true'
+    // Clean up the temporary config file if it exists
+    if (tmpConfigPath && fs.existsSync(tmpConfigPath)) {
+      try {
+        fs.unlinkSync(tmpConfigPath);
+        console.log(`Cleaned up temporary config file after error`);
+      } catch (cleanupErr) {
+        console.error(`Failed to clean up temporary config file: ${cleanupErr.message}`);
       }
-    });
-    
-    if (result.status === 0) {
-      console.log('Rollback completed successfully');
-    } else {
-      console.error(`Rollback failed with exit code ${result.status}`);
-      process.exit(result.status);
     }
-  } catch (error) {
-    console.error('Error running rollback:', error.message);
+    
     process.exit(1);
   }
-}
-
-// Run the rollback
-runRollback().catch(error => {
-  console.error('Fatal error:', error);
-  process.exit(1);
-});
+})();
