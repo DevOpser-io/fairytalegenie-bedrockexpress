@@ -394,10 +394,13 @@ async function initializeDatabase() {
       // Define models with the initialized sequelize instance
       db.User = UserModel(sequelize);
       db.Conversation = defineConversationModel(sequelize);
+      db.Story = defineStoryModel(sequelize);
       
       // Setup associations between models
       db.User.hasMany(db.Conversation, { foreignKey: 'user_id' });
       db.Conversation.belongsTo(db.User, { foreignKey: 'user_id' });
+      db.User.hasMany(db.Story, { foreignKey: 'user_id' });
+      db.Story.belongsTo(db.User, { foreignKey: 'user_id' });
     }
     
     // Test connection
