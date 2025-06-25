@@ -5,6 +5,7 @@ const { get, set, incr, expire } = require('../services/redisService');
 const { uploadToS3 } = require('../services/s3Service');
 const { sendToImageQueue } = require('../services/sqsService');
 const { Story } = require('../models');
+const config = require('../config');
 
 // Story generation controller
 class StoryController {
@@ -60,7 +61,8 @@ class StoryController {
       const storyId = uuidv4();
       
       // Store initial story status
-      await set(`story:${storyId}`, JSON.stringify({
+      const cache_version = config.cache.version;
+      await set(`story:${cache_version}:${storyId}`, JSON.stringify({
         status: 'generating',
         createdAt: new Date().toISOString()
       }), 3600); // 1 hour TTL
@@ -92,7 +94,8 @@ class StoryController {
       const { storyId } = req.params;
       
       // Check Redis for story data
-      const storyData = await get(`story:${storyId}`);
+      const cache_version = config.cache.version;
+      const storyData = await get(`story:${cache_version}:${storyId}`);
       
       if (!storyData) {
         return res.status(404).json({ error: 'Story not found' });
@@ -164,7 +167,8 @@ class StoryController {
         createdAt: new Date().toISOString()
       };
       
-      await set(`story:${storyId}`, JSON.stringify(completedStory), 86400); // 24 hour TTL
+      const cache_version = config.cache.version;
+      await set(`story:${cache_version}:${storyId}`, JSON.stringify(completedStory), 86400); // 24 hour TTL
       
       // Save to database for permanent storage (if user is authenticated)
       try {
@@ -243,7 +247,8 @@ class StoryController {
       }
       
       // Update story status to failed
-      await set(`story:${storyId}`, JSON.stringify({
+      const cache_version = config.cache.version;
+      await set(`story:${cache_version}:${storyId}`, JSON.stringify({
         status: 'failed',
         error: errorMessage,
         createdAt: new Date().toISOString()

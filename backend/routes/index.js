@@ -22,9 +22,11 @@ router.get('/story/:storyId', async (req, res) => {
   try {
     const { storyId } = req.params;
     const { get } = require('../services/redisService');
+    const config = require('../config');
     
-    // Get story from Redis
-    const storyData = await get(`story:${storyId}`);
+    // Get story from Redis using cache versioning like chat
+    const cache_version = config.cache.version;
+    const storyData = await get(`story:${cache_version}:${storyId}`);
     
     if (!storyData) {
       return res.status(404).render('error', { 

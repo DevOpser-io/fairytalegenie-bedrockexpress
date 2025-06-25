@@ -150,6 +150,16 @@ async function clearOldCache() {
       }
     }
     
+    // Get all keys with the pattern story:*
+    const storyKeys = await scanKeys(redis_client, 'story:*');
+    
+    // Delete keys that don't match current version
+    for (const key of storyKeys) {
+      if (!key.startsWith(`story:${current_version}:`)) {
+        await redis_client.del(key);
+      }
+    }
+    
     // Get all keys with the pattern session:*
     const sessionKeys = await scanKeys(redis_client, 'session:*');
     

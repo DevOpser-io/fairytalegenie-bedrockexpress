@@ -7,6 +7,7 @@ const router = express.Router();
 const { ensureFullAuth } = require('../middleware/authMiddleware');
 const { Story } = require('../models');
 const { get } = require('../services/redisService');
+const config = require('../config');
 
 /**
  * GET /api/stories - Get user's story history
@@ -67,7 +68,7 @@ router.get('/', ensureFullAuth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error fetching story history:', error);
+    console.error(`[STORY_HISTORY] Error fetching story history for user ${req.user?.id}: ${error.message}`);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch story history'
@@ -83,8 +84,11 @@ router.get('/:storyId', ensureFullAuth, async (req, res) => {
     const userId = req.user.id;
     const { storyId } = req.params;
 
-    // First check Redis for the story (might be more recent)
-    const redisStory = await get(`story:${storyId}`);
+    // First check Redis for the story (might be more recent) - using cache versioning like chat
+    const cache_version = config.cache.version;
+    const redisKey = `story:${cache_version}:${storyId}`;
+    const redisStory = await get(redisKey);
+    
     if (redisStory) {
       const storyData = JSON.parse(redisStory);
       // Verify this story belongs to the user (basic security check)
@@ -128,7 +132,7 @@ router.get('/:storyId', ensureFullAuth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error fetching story:', error);
+    console.error(`[STORY_HISTORY] Error fetching story ${req.params.storyId} for user ${req.user?.id}: ${error.message}`);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch story'
