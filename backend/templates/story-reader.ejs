@@ -1,0 +1,319 @@
+<% title = story.title || 'Your Fairytale' %>
+<%- include('./partials/favicon') %>
+
+<style nonce="<%= cspNonce %>">
+  .reader-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+  
+  .story-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .story-title {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 10px;
+    font-family: 'Georgia', serif;
+  }
+  
+  .story-meta {
+    color: #718096;
+    font-size: 1rem;
+  }
+  
+  .story-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    min-height: 500px;
+  }
+  
+  .story-section {
+    display: none;
+    animation: fadeIn 0.5s ease-in;
+  }
+  
+  .story-section.active {
+    display: block;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .section-image {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .section-text {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: #2d3748;
+    font-family: 'Georgia', serif;
+    text-align: justify;
+  }
+  
+  .story-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+  }
+  
+  .nav-button {
+    padding: 12px 24px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .nav-button:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+  }
+  
+  .nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .page-indicator {
+    color: #718096;
+    font-size: 1rem;
+  }
+  
+  .story-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 40px;
+  }
+  
+  .action-button {
+    padding: 12px 24px;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+  
+  .action-button:hover {
+    background: #667eea;
+    color: white;
+  }
+  
+  .loading-placeholder {
+    background: #f7fafc;
+    border-radius: 8px;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #718096;
+  }
+  
+  .image-placeholder {
+    height: 300px;
+  }
+  
+  .error-message {
+    background: #fed7d7;
+    color: #c53030;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  @media (max-width: 768px) {
+    .story-title {
+      font-size: 2rem;
+    }
+    
+    .story-content {
+      padding: 20px;
+    }
+    
+    .section-text {
+      font-size: 1.1rem;
+    }
+    
+    .story-navigation {
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+  }
+</style>
+
+<div class="reader-container">
+  <div class="story-header">
+    <h1 class="story-title"><%= story.title %></h1>
+    <p class="story-meta">A magical story for age <%= age || '6' %></p>
+  </div>
+  
+  <div class="story-content">
+    <% if (story.status === 'generating') { %>
+      <div class="loading-placeholder">
+        <div>
+          <div class="loading-spinner"></div>
+          <p>Your story is being created...</p>
+        </div>
+      </div>
+    <% } else if (story.status === 'failed') { %>
+      <div class="error-message">
+        <p>We encountered an issue creating your story. Please try again.</p>
+        <a href="/" class="action-button">Create New Story</a>
+      </div>
+    <% } else if (story.sections && story.sections.length > 0) { %>
+      <% story.sections.forEach((section, index) => { %>
+        <div class="story-section <%= index === 0 ? 'active' : '' %>" data-section="<%= index %>">
+          <% if (section.imageUrl) { %>
+            <img src="<%= section.imageUrl %>" alt="Story illustration" class="section-image" loading="lazy">
+          <% } else { %>
+            <div class="loading-placeholder image-placeholder">
+              <p>Image is being generated...</p>
+            </div>
+          <% } %>
+          <p class="section-text"><%= section.text %></p>
+        </div>
+      <% }); %>
+      
+      <div class="story-navigation">
+        <button class="nav-button" id="prev-btn" disabled>
+          <span>←</span> Previous
+        </button>
+        <span class="page-indicator">
+          Page <span id="current-page">1</span> of <%= story.sections.length %>
+        </span>
+        <button class="nav-button" id="next-btn">
+          Next <span>→</span>
+        </button>
+      </div>
+    <% } %>
+  </div>
+  
+  <% if (story.status === 'completed') { %>
+    <div class="story-actions">
+      <button class="action-button" id="download-pdf-btn">
+        📥 Download PDF
+      </button>
+      <button class="action-button" id="share-story-btn">
+        🔗 Share Story
+      </button>
+      <a href="/" class="action-button">
+        ✨ Create New Story
+      </a>
+    </div>
+  <% } %>
+</div>
+
+<script nonce="<%= cspNonce %>">
+document.addEventListener('DOMContentLoaded', function() {
+  let currentSection = 0;
+  const totalSections = <%= story.sections ? story.sections.length : 0 %>;
+
+  function navigateStory(direction) {
+    const sections = document.querySelectorAll('.story-section');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const currentPageSpan = document.getElementById('current-page');
+    
+    // Hide current section
+    sections[currentSection].classList.remove('active');
+    
+    // Update current section
+    currentSection += direction;
+    
+    // Show new section
+    sections[currentSection].classList.add('active');
+    
+    // Update page indicator
+    currentPageSpan.textContent = currentSection + 1;
+    
+    // Update button states
+    prevBtn.disabled = currentSection === 0;
+    nextBtn.disabled = currentSection === totalSections - 1;
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function downloadPDF() {
+    // Placeholder for PDF download
+    alert('PDF download will be implemented soon!');
+  }
+
+  function shareStory() {
+    // Copy link to clipboard
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      alert('Story link copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy link');
+    });
+  }
+  
+  // Add event listeners for navigation buttons
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function() {
+      navigateStory(-1);
+    });
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function() {
+      navigateStory(1);
+    });
+  }
+  
+  // Add event listeners for action buttons
+  const downloadBtn = document.getElementById('download-pdf-btn');
+  const shareBtn = document.getElementById('share-story-btn');
+  
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', downloadPDF);
+  }
+  
+  if (shareBtn) {
+    shareBtn.addEventListener('click', shareStory);
+  }
+  
+  // Auto-refresh if story is still generating
+  <% if (story.status === 'generating') { %>
+  setTimeout(() => {
+    window.location.reload();
+  }, 5000);
+  <% } %>
+});
+</script>

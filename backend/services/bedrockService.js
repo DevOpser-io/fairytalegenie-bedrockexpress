@@ -302,9 +302,76 @@ async function generateStreamingResponse(messages, onChunk, options = {}) {
   }
 }
 
+/**
+ * Generate a story using Claude
+ * @param {string} prompt - The story generation prompt
+ * @returns {Promise<string>} - The generated story JSON
+ */
+async function generateStory(prompt) {
+  try {
+    const messages = [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ];
+    
+    const response = await generateResponse(messages);
+    
+    // Validate JSON response
+    try {
+      JSON.parse(response);
+      return response;
+    } catch (parseError) {
+      console.error('Invalid JSON response from Claude:', response);
+      throw new Error('Failed to generate valid story format');
+    }
+  } catch (error) {
+    console.error('Error generating story:', error);
+    throw error;
+  }
+}
+
+/**
+ * Generate an image using Stable Diffusion via Bedrock
+ * @param {string} prompt - The image generation prompt
+ * @param {string} seed - Seed for consistent generation
+ * @returns {Promise<Buffer>} - The generated image as a buffer
+ */
+async function generateImage(prompt, seed) {
+  try {
+    // For MVP, return a placeholder - actual implementation would use Bedrock's Stable Diffusion
+    // This would be implemented when the Lambda function is set up
+    console.log('Image generation requested:', { prompt, seed });
+    
+    // TODO: Implement actual Bedrock Stable Diffusion call
+    // const imageClient = new BedrockRuntimeClient({ region: config.aws.region });
+    // const command = new InvokeModelCommand({
+    //   modelId: 'stability.stable-diffusion-xl-v1',
+    //   contentType: 'application/json',
+    //   accept: 'image/png',
+    //   body: JSON.stringify({
+    //     text_prompts: [{ text: prompt }],
+    //     cfg_scale: 7,
+    //     seed: parseInt(seed, 16),
+    //     steps: 30
+    //   })
+    // });
+    // const response = await imageClient.send(command);
+    // return response.body;
+    
+    throw new Error('Image generation not yet implemented');
+  } catch (error) {
+    console.error('Error generating image:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   BedrockClient,
   bedrockClientInstance,
   generateResponse,
-  generateStreamingResponse
+  generateStreamingResponse,
+  generateStory,
+  generateImage
 };

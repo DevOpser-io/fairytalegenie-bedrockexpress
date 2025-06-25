@@ -199,10 +199,109 @@ async function scanKeys(client, pattern) {
   }
 }
 
+/**
+ * Generic Redis operations for stories and other data
+ */
+
+/**
+ * Get a value from Redis
+ * @param {string} key - The Redis key
+ * @returns {string|null} - The value or null if not found
+ */
+async function get(key) {
+  try {
+    const redis_client = redisClient.getClient();
+    if (!redis_client) {
+      console.error('Redis client not initialized');
+      return null;
+    }
+    
+    return await redis_client.get(key);
+  } catch (error) {
+    console.error(`Error getting Redis key ${key}: ${error.message}`);
+    return null;
+  }
+}
+
+/**
+ * Set a value in Redis
+ * @param {string} key - The Redis key
+ * @param {string} value - The value to set
+ * @param {number} ttl - Time to live in seconds (optional)
+ * @returns {boolean} - Success status
+ */
+async function set(key, value, ttl = null) {
+  try {
+    const redis_client = redisClient.getClient();
+    if (!redis_client) {
+      console.error('Redis client not initialized');
+      return false;
+    }
+    
+    if (ttl) {
+      await redis_client.setEx(key, ttl, value);
+    } else {
+      await redis_client.set(key, value);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error(`Error setting Redis key ${key}: ${error.message}`);
+    return false;
+  }
+}
+
+/**
+ * Increment a Redis key
+ * @param {string} key - The Redis key
+ * @returns {number} - The new value
+ */
+async function incr(key) {
+  try {
+    const redis_client = redisClient.getClient();
+    if (!redis_client) {
+      console.error('Redis client not initialized');
+      return 0;
+    }
+    
+    return await redis_client.incr(key);
+  } catch (error) {
+    console.error(`Error incrementing Redis key ${key}: ${error.message}`);
+    return 0;
+  }
+}
+
+/**
+ * Set expiry for a Redis key
+ * @param {string} key - The Redis key
+ * @param {number} ttl - Time to live in seconds
+ * @returns {boolean} - Success status
+ */
+async function expire(key, ttl) {
+  try {
+    const redis_client = redisClient.getClient();
+    if (!redis_client) {
+      console.error('Redis client not initialized');
+      return false;
+    }
+    
+    await redis_client.expire(key, ttl);
+    return true;
+  } catch (error) {
+    console.error(`Error setting expiry for Redis key ${key}: ${error.message}`);
+    return false;
+  }
+}
+
 module.exports = {
   getChatHistory,
   saveChatHistory,
   deleteChatHistory,
   clearOldCache,
-  CHAT_HISTORY_TTL
+  CHAT_HISTORY_TTL,
+  // Generic Redis operations
+  get,
+  set,
+  incr,
+  expire
 };

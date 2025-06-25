@@ -1,0 +1,484 @@
+<% title = 'Create Your Fairytale' %>
+<%- include('./partials/favicon') %>
+
+<style nonce="<%= cspNonce %>">
+  .story-form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .story-form-container h1 {
+    text-align: center;
+    color: #667eea;
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+  }
+  
+  .story-form-container .subtitle {
+    text-align: center;
+    color: #718096;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 24px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 1rem;
+  }
+  
+  .form-group .helper-text {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-top: 4px;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s;
+    box-sizing: border-box;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  .keywords-input-container {
+    position: relative;
+  }
+  
+  .keywords-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .keyword-tag {
+    background: #667eea;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .keyword-tag button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  
+  .keyword-tag button:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .age-selector {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .age-selector input[type="number"] {
+    width: 80px;
+    text-align: center;
+  }
+  
+  .age-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .age-btn {
+    padding: 8px 16px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+  }
+  
+  .age-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+  }
+  
+  .age-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+  }
+  
+  .submit-button {
+    width: 100%;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  
+  .submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+  }
+  
+  .submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .error-message {
+    background: #fed7d7;
+    color: #c53030;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+  }
+  
+  .loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .progress-container {
+    display: none;
+    margin-top: 24px;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+  
+  .progress-text {
+    text-align: center;
+    margin-top: 12px;
+    color: #718096;
+    font-size: 0.875rem;
+  }
+</style>
+
+<div class="story-form-container">
+  <h1>✨ Create Your Fairytale</h1>
+  <p class="subtitle">Tell us what you'd like in your story, and we'll create something magical!</p>
+  
+  <form id="story-form" method="POST" action="/v1/story">
+    <div id="error-container"></div>
+    
+    <div class="form-group">
+      <label for="keywords">Story Elements</label>
+      <div class="keywords-input-container">
+        <div class="keywords-tags" id="keywords-tags"></div>
+        <input 
+          type="text" 
+          id="keywords-input" 
+          placeholder="Type an element and press Enter (e.g., dragon, castle, princess)"
+          autocomplete="off"
+        />
+        <p class="helper-text">Add up to 5 elements that should appear in your story</p>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="age">Child's Age</label>
+      <div class="age-selector">
+        <input 
+          type="number" 
+          id="age" 
+          name="age" 
+          min="1" 
+          max="12" 
+          value="6" 
+          required
+        />
+        <div class="age-buttons">
+          <button type="button" class="age-btn" data-age="3">3-4</button>
+          <button type="button" class="age-btn" data-age="6">5-7</button>
+          <button type="button" class="age-btn" data-age="9">8-10</button>
+          <button type="button" class="age-btn" data-age="11">11-12</button>
+        </div>
+      </div>
+      <p class="helper-text">This helps us create age-appropriate content</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="characterNames">Character Names (Optional)</label>
+      <input 
+        type="text" 
+        id="characterNames" 
+        name="characterNames" 
+        placeholder="e.g., Emma, Max, Luna"
+      />
+      <p class="helper-text">Add names for characters in your story (comma-separated)</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="notes">Additional Notes (Optional)</label>
+      <textarea 
+        id="notes" 
+        name="notes" 
+        rows="3" 
+        maxlength="600"
+        placeholder="Any special requests? Lessons to include? Favorite things?"
+      ></textarea>
+      <p class="helper-text"><span id="notes-count">0</span>/600 characters</p>
+    </div>
+    
+    <button type="submit" class="submit-button" id="submit-btn">
+      <span>🎪 Create My Story</span>
+    </button>
+    
+    <div class="progress-container" id="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <p class="progress-text" id="progress-text">Creating your magical story...</p>
+    </div>
+  </form>
+</div>
+
+<script nonce="<%= cspNonce %>">
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('story-form');
+  const keywordsInput = document.getElementById('keywords-input');
+  const keywordsTags = document.getElementById('keywords-tags');
+  const ageInput = document.getElementById('age');
+  const ageButtons = document.querySelectorAll('.age-btn');
+  const notesInput = document.getElementById('notes');
+  const notesCount = document.getElementById('notes-count');
+  const submitBtn = document.getElementById('submit-btn');
+  const errorContainer = document.getElementById('error-container');
+  const progressContainer = document.getElementById('progress-container');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  
+  let keywords = [];
+  
+  // Keywords management
+  function addKeyword(keyword) {
+    keyword = keyword.trim();
+    if (keyword && !keywords.includes(keyword) && keywords.length < 5) {
+      keywords.push(keyword);
+      renderKeywords();
+      keywordsInput.value = '';
+    } else if (keywords.length >= 5) {
+      showError('Maximum 5 keywords allowed');
+    }
+  }
+  
+  function removeKeyword(index) {
+    keywords.splice(index, 1);
+    renderKeywords();
+  }
+  
+  function renderKeywords() {
+    keywordsTags.innerHTML = keywords.map((keyword, index) => `
+      <div class="keyword-tag">
+        <span>${keyword}</span>
+        <button type="button" onclick="removeKeyword(${index})">×</button>
+      </div>
+    `).join('');
+  }
+  
+  // Handle Enter key for keywords
+  keywordsInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addKeyword(keywordsInput.value);
+    }
+  });
+  
+  // Handle comma-separated input
+  keywordsInput.addEventListener('input', function(e) {
+    if (e.target.value.includes(',')) {
+      const parts = e.target.value.split(',');
+      parts.forEach(part => {
+        if (part.trim()) {
+          addKeyword(part);
+        }
+      });
+      keywordsInput.value = '';
+    }
+  });
+  
+  // Age quick select buttons
+  ageButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      ageInput.value = this.dataset.age;
+      ageButtons.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+  
+  // Character counter for notes
+  notesInput.addEventListener('input', function() {
+    notesCount.textContent = this.value.length;
+  });
+  
+  // Show error message
+  function showError(message) {
+    errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+    setTimeout(() => {
+      errorContainer.innerHTML = '';
+    }, 5000);
+  }
+  
+  // Form submission
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Validate
+    if (keywords.length === 0) {
+      showError('Please add at least one story element');
+      return;
+    }
+    
+    // Prepare data
+    const formData = {
+      keywords: keywords,
+      age: parseInt(ageInput.value),
+      notes: notesInput.value.trim()
+    };
+    
+    // Handle character names
+    const characterNamesValue = document.getElementById('characterNames').value.trim();
+    if (characterNamesValue) {
+      formData.characterNames = characterNamesValue.split(',').map(n => n.trim()).filter(n => n);
+    }
+    
+    // Disable form
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading-spinner"></span><span>Creating...</span>';
+    progressContainer.style.display = 'block';
+    
+    // Start progress animation
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+      progress = Math.min(progress + 1, 90);
+      progressFill.style.width = progress + '%';
+    }, 800);
+    
+    try {
+      // Submit to API
+      const response = await fetch('/v1/story', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>'
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create story');
+      }
+      
+      // Poll for completion
+      progressText.textContent = 'Generating your magical story...';
+      const storyId = data.storyId;
+      let checkCount = 0;
+      const maxChecks = 30; // 90 seconds max
+      
+      const checkStory = async () => {
+        checkCount++;
+        
+        const storyResponse = await fetch(`/v1/story/${storyId}`);
+        const storyData = await storyResponse.json();
+        
+        if (storyData.status === 'completed') {
+          clearInterval(progressInterval);
+          progressFill.style.width = '100%';
+          progressText.textContent = 'Your story is ready!';
+          
+          // Redirect to reader view
+          setTimeout(() => {
+            window.location.href = `/story/${storyId}`;
+          }, 1000);
+        } else if (storyData.status === 'failed' || checkCount >= maxChecks) {
+          throw new Error(storyData.error || 'Story generation timed out');
+        } else {
+          // Continue polling
+          setTimeout(checkStory, 3000);
+        }
+      };
+      
+      setTimeout(checkStory, 3000);
+      
+    } catch (error) {
+      clearInterval(progressInterval);
+      showError(error.message);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>🎪 Create My Story</span>';
+      progressContainer.style.display = 'none';
+    }
+  });
+  
+  // Make removeKeyword global
+  window.removeKeyword = removeKeyword;
+});
+</script>
