@@ -45,6 +45,7 @@
   
   .form-group input[type="text"],
   .form-group input[type="number"],
+  .form-group select,
   .form-group textarea {
     width: 100%;
     padding: 12px 16px;
@@ -56,6 +57,7 @@
   }
   
   .form-group input:focus,
+  .form-group select:focus,
   .form-group textarea:focus {
     outline: none;
     border-color: #667eea;
@@ -105,42 +107,6 @@
     background: rgba(255, 255, 255, 0.2);
   }
   
-  .age-selector {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  
-  .age-selector input[type="number"] {
-    width: 80px;
-    text-align: center;
-  }
-  
-  .age-buttons {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .age-btn {
-    padding: 8px 16px;
-    border: 2px solid #e2e8f0;
-    background: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.875rem;
-  }
-  
-  .age-btn:hover {
-    border-color: #667eea;
-    color: #667eea;
-  }
-  
-  .age-btn.active {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-  }
   
   .submit-button {
     width: 100%;
@@ -243,36 +209,52 @@
     </div>
     
     <div class="form-group">
+      <label for="childName">Child's Name</label>
+      <input 
+        type="text" 
+        id="childName" 
+        name="childName" 
+        placeholder="e.g., Emma"
+        required
+      />
+      <p class="helper-text">The main character will be named after your child</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="childGender">Child's Gender</label>
+      <input 
+        type="text" 
+        id="childGender" 
+        name="childGender" 
+        placeholder="Type in your child's gender"
+        required
+      />
+      <p class="helper-text">This helps create appropriate pronouns and character descriptions</p>
+    </div>
+    
+    <div class="form-group">
       <label for="age">Child's Age</label>
-      <div class="age-selector">
-        <input 
-          type="number" 
-          id="age" 
-          name="age" 
-          min="1" 
-          max="12" 
-          value="6" 
-          required
-        />
-        <div class="age-buttons">
-          <button type="button" class="age-btn" data-age="3">3-4</button>
-          <button type="button" class="age-btn" data-age="6">5-7</button>
-          <button type="button" class="age-btn" data-age="9">8-10</button>
-          <button type="button" class="age-btn" data-age="11">11-12</button>
-        </div>
-      </div>
+      <input 
+        type="number" 
+        id="age" 
+        name="age" 
+        min="1" 
+        max="12" 
+        value="6" 
+        required
+      />
       <p class="helper-text">This helps us create age-appropriate content</p>
     </div>
     
     <div class="form-group">
-      <label for="characterNames">Character Names (Optional)</label>
+      <label for="familyNames">Family Names (Optional)</label>
       <input 
         type="text" 
-        id="characterNames" 
-        name="characterNames" 
-        placeholder="e.g., Emma, Max, Luna"
+        id="familyNames" 
+        name="familyNames" 
+        placeholder="e.g., Mom Sarah, Dad Michael, Sister Lucy"
       />
-      <p class="helper-text">Add names for characters in your story (comma-separated)</p>
+      <p class="helper-text">Add family member names to include in the story (comma-separated)</p>
     </div>
     
     <div class="form-group">
@@ -305,8 +287,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('story-form');
   const keywordsInput = document.getElementById('keywords-input');
   const keywordsTags = document.getElementById('keywords-tags');
-  const ageInput = document.getElementById('age');
-  const ageButtons = document.querySelectorAll('.age-btn');
   const notesInput = document.getElementById('notes');
   const notesCount = document.getElementById('notes-count');
   const submitBtn = document.getElementById('submit-btn');
@@ -364,14 +344,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Age quick select buttons
-  ageButtons.forEach(btn => {
-    btn.addEventListener('click', function() {
-      ageInput.value = this.dataset.age;
-      ageButtons.forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-    });
-  });
   
   // Character counter for notes
   notesInput.addEventListener('input', function() {
@@ -396,17 +368,33 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
+    const childNameInput = document.getElementById('childName');
+    const childGenderInput = document.getElementById('childGender');
+    const ageInput = document.getElementById('age');
+    
+    if (!childNameInput.value.trim()) {
+      showError('Please enter your child\'s name');
+      return;
+    }
+    
+    if (!childGenderInput.value.trim()) {
+      showError('Please enter your child\'s gender');
+      return;
+    }
+    
     // Prepare data
     const formData = {
       keywords: keywords,
+      childName: childNameInput.value.trim(),
+      childGender: childGenderInput.value.trim(),
       age: parseInt(ageInput.value),
       notes: notesInput.value.trim()
     };
     
-    // Handle character names
-    const characterNamesValue = document.getElementById('characterNames').value.trim();
-    if (characterNamesValue) {
-      formData.characterNames = characterNamesValue.split(',').map(n => n.trim()).filter(n => n);
+    // Handle family names
+    const familyNamesValue = document.getElementById('familyNames').value.trim();
+    if (familyNamesValue) {
+      formData.familyNames = familyNamesValue.split(',').map(n => n.trim()).filter(n => n);
     }
     
     // Disable form

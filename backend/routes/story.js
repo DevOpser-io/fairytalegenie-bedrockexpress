@@ -13,19 +13,27 @@ const validateStoryRequest = [
     .trim()
     .isLength({ min: 1, max: 50 })
     .withMessage('Each keyword must be 1-50 characters'),
+  body('childName')
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 30 })
+    .withMessage('Child name is required and must be 1-30 characters'),
+  body('childGender')
+    .isIn(['boy', 'girl', 'non-binary', 'prefer-not-to-say'])
+    .withMessage('Child gender must be one of: boy, girl, non-binary, prefer-not-to-say'),
   body('age')
     .isInt({ min: 1, max: 12 })
     .withMessage('Age must be between 1 and 12'),
-  body('characterNames')
+  body('familyNames')
     .optional()
-    .isArray({ max: 3 })
-    .withMessage('Character names must be an array with max 3 items'),
-  body('characterNames.*')
+    .isArray({ max: 5 })
+    .withMessage('Family names must be an array with max 5 items'),
+  body('familyNames.*')
     .optional()
     .isString()
     .trim()
     .isLength({ min: 1, max: 30 })
-    .withMessage('Each character name must be 1-30 characters'),
+    .withMessage('Each family name must be 1-30 characters'),
   body('notes')
     .optional()
     .isString()

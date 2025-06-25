@@ -10,7 +10,7 @@ class StoryController {
   // POST /v1/story - Generate a new story
   async generate(req, res) {
     try {
-      const { keywords, age, characterNames, notes } = req.body;
+      const { keywords, age, childName, childGender, familyNames, notes } = req.body;
       
       // Validate input
       if (!keywords || !Array.isArray(keywords) || keywords.length === 0) {
@@ -54,7 +54,7 @@ class StoryController {
       await expire(rateLimitKey, 86400); // 24 hours
       
       // Generate story asynchronously
-      this.generateStoryAsync(storyId, { keywords, age, characterNames, notes });
+      this.generateStoryAsync(storyId, { keywords, age, childName, childGender, familyNames, notes });
       
       // Return 202 Accepted with story ID
       res.status(202).json({ storyId });
@@ -189,26 +189,43 @@ class StoryController {
   
   // Create prompt for Claude
   createStoryPrompt(params) {
-    const { keywords, age, characterNames, notes } = params;
+    const { keywords, age, childName, childGender, familyNames, notes } = params;
+    
+    // Create pronoun mappings
+    const pronouns = {
+      'boy': { they: 'he', them: 'him', their: 'his', themself: 'himself' },
+      'girl': { they: 'she', them: 'her', their: 'her', themself: 'herself' },
+      'non-binary': { they: 'they', them: 'them', their: 'their', themself: 'themself' },
+      'prefer-not-to-say': { they: 'they', them: 'them', their: 'their', themself: 'themself' }
+    };
+    
+    const childPronouns = pronouns[childGender] || pronouns['prefer-not-to-say'];
     
     return `You are a creative children's story writer. Generate a fairytale story with the following requirements:
 
-Keywords to incorporate: ${keywords.join(', ')}
-Target age: ${age} years old
-${characterNames ? `Character names to use: ${characterNames.join(', ')}` : ''}
+Main character details:
+- Name: ${childName}
+- Gender: ${childGender}
+- Pronouns: ${childPronouns.they}/${childPronouns.them}/${childPronouns.their}
+- Age: ${age} years old
+
+Story elements to incorporate: ${keywords.join(', ')}
+${familyNames && familyNames.length > 0 ? `Family members to include: ${familyNames.join(', ')}` : ''}
 ${notes ? `Additional notes: ${notes}` : ''}
 
 Requirements:
 1. Create an age-appropriate story with 4-6 sections
 2. Each section should be 50-100 words
-3. Include a consistent main character with distinctive visual features
-4. The story should have a clear beginning, middle, and end
-5. Include a positive moral or lesson
+3. The main character should be named ${childName} and use the pronouns ${childPronouns.they}/${childPronouns.them}/${childPronouns.their}
+4. Include a consistent character description with distinctive visual features
+5. The story should have a clear beginning, middle, and end
+6. Include a positive moral or lesson appropriate for age ${age}
+7. If family names are provided, incorporate them naturally into the story
 
 Return the story in this exact JSON format:
 {
   "title": "Story Title",
-  "characterDescriptor": "Detailed visual description of main character(s) for consistent image generation",
+  "characterDescriptor": "Detailed visual description of ${childName} for consistent image generation",
   "sections": [
     {
       "text": "Section text here..."
@@ -216,8 +233,8 @@ Return the story in this exact JSON format:
   ]
 }
 
-The characterDescriptor should include specific details like:
-- Physical appearance (colors, size, distinctive features)
+The characterDescriptor should include specific details about ${childName}:
+- Physical appearance (colors, size, distinctive features appropriate for a ${age}-year-old ${childGender})
 - Clothing or accessories
 - Any magical or special attributes
 This descriptor will be used to ensure visual consistency across all illustrations.`;
