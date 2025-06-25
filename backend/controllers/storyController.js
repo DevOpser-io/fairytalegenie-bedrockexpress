@@ -4,8 +4,17 @@ const { generateResponse } = require('../services/bedrockService');
 const { get, set, incr, expire } = require('../services/redisService');
 const { uploadToS3 } = require('../services/s3Service');
 const { sendToImageQueue } = require('../services/sqsService');
-const { Story } = require('../models');
+const db = require('../models');
 const config = require('../config');
+
+// Ensure database is initialized before accessing models
+async function ensureDatabaseInitialized() {
+  if (process.env.NODE_ENV === 'production' && typeof db.initializeDatabase === 'function') {
+    console.log('Ensuring database is initialized before accessing models');
+    await db.initializeDatabase();
+  }
+  return db.Story;
+}
 
 // Story generation controller
 class StoryController {
@@ -172,6 +181,9 @@ class StoryController {
       
       // Save to database for permanent storage (if user is authenticated)
       try {
+        // Ensure database is initialized before accessing Story model
+        const Story = await ensureDatabaseInitialized();
+        
         // Create preview text from first section
         const previewText = story.sections && story.sections[0] 
           ? story.sections[0].text.substring(0, 150) + (story.sections[0].text.length > 150 ? '...' : '')

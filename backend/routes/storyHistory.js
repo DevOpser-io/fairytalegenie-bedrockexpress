@@ -5,9 +5,18 @@
 const express = require('express');
 const router = express.Router();
 const { ensureFullAuth } = require('../middleware/authMiddleware');
-const { Story } = require('../models');
+const db = require('../models');
 const { get } = require('../services/redisService');
 const config = require('../config');
+
+// Ensure database is initialized before accessing models
+async function ensureDatabaseInitialized() {
+  if (process.env.NODE_ENV === 'production' && typeof db.initializeDatabase === 'function') {
+    console.log('Ensuring database is initialized before accessing models');
+    await db.initializeDatabase();
+  }
+  return db.Story;
+}
 
 /**
  * GET /api/stories - Get user's story history
@@ -15,6 +24,9 @@ const config = require('../config');
 router.get('/', ensureFullAuth, async (req, res) => {
   try {
     const userId = req.user.id;
+    
+    // Ensure database is initialized before accessing Story model
+    const Story = await ensureDatabaseInitialized();
     
     // Get stories from database, ordered by creation date
     const stories = await Story.findAll({
@@ -84,6 +96,9 @@ router.get('/:storyId', ensureFullAuth, async (req, res) => {
     const userId = req.user.id;
     const { storyId } = req.params;
 
+    // Ensure database is initialized before accessing Story model
+    const Story = await ensureDatabaseInitialized();
+
     // First check Redis for the story (might be more recent) - using cache versioning like chat
     const cache_version = config.cache.version;
     const redisKey = `story:${cache_version}:${storyId}`;
@@ -148,6 +163,9 @@ router.put('/:storyId/favorite', ensureFullAuth, async (req, res) => {
     const userId = req.user.id;
     const { storyId } = req.params;
 
+    // Ensure database is initialized before accessing Story model
+    const Story = await ensureDatabaseInitialized();
+
     const story = await Story.findOne({
       where: { story_id: storyId, user_id: userId }
     });
@@ -184,6 +202,9 @@ router.delete('/:storyId', ensureFullAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { storyId } = req.params;
+
+    // Ensure database is initialized before accessing Story model
+    const Story = await ensureDatabaseInitialized();
 
     const story = await Story.findOne({
       where: { story_id: storyId, user_id: userId }
