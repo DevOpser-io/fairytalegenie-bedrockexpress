@@ -365,7 +365,7 @@
 
 <!-- Story History Sidebar Toggle Button -->
 <button class="sidebar-toggle" id="sidebar-toggle">
-  📚 My Stories
+  📚 Library
 </button>
 
 <!-- Story History Sidebar Overlay -->
@@ -374,7 +374,7 @@
 <!-- Story History Sidebar -->
 <div class="story-sidebar" id="story-sidebar">
   <div class="sidebar-header">
-    <h2 class="sidebar-title">My Stories</h2>
+    <h2 class="sidebar-title">Library</h2>
     <button class="sidebar-close" id="sidebar-close">&times;</button>
   </div>
   <div class="sidebar-content" id="sidebar-content">
@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function() {
         stories.forEach(story => {
           const createdDate = new Date(story.created_at).toLocaleDateString();
           html += `
-            <div class="story-item" onclick="openStory('${story.story_id}')">
+            <div class="story-item" data-story-id="${story.story_id}">
               <div class="story-title">${escapeHtml(story.title)}</div>
               <div class="story-meta">
                 <span>${story.child_name} • Age ${story.child_age} • ${createdDate}</span>
@@ -813,7 +813,15 @@ document.addEventListener('DOMContentLoaded', function() {
   sidebarClose.addEventListener('click', toggleSidebar);
   sidebarOverlay.addEventListener('click', toggleSidebar);
 
-  // Make openStory global for onclick handlers
-  window.openStory = openStory;
+  // Handle story item clicks using event delegation
+  sidebarContent.addEventListener('click', function(e) {
+    const storyItem = e.target.closest('.story-item');
+    if (storyItem) {
+      const storyId = storyItem.getAttribute('data-story-id');
+      if (storyId) {
+        openStory(storyId);
+      }
+    }
+  });
 });
 </script>

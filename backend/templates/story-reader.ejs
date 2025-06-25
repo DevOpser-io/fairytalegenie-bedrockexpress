@@ -2,6 +2,183 @@
 <%- include('./partials/favicon') %>
 
 <style nonce="<%= cspNonce %>">
+  /* Story History Sidebar Styles */
+  .story-sidebar {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 320px;
+    height: 100vh;
+    background: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+  
+  .story-sidebar.active {
+    left: 0;
+  }
+  
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+  }
+  
+  .sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #667eea;
+    color: white;
+  }
+  
+  .sidebar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .sidebar-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+  }
+  
+  .sidebar-content {
+    padding: 20px;
+  }
+  
+  .story-group {
+    margin-bottom: 30px;
+  }
+  
+  .story-group-header {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  
+  .story-item {
+    display: block;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 8px;
+    text-decoration: none;
+    color: #2d3748;
+    background: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .story-item:hover {
+    background: #f7fafc;
+    border-color: #667eea;
+    transform: translateX(2px);
+  }
+  
+  .story-title-sidebar {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    color: #2d3748;
+  }
+  
+  .story-meta {
+    font-size: 0.75rem;
+    color: #718096;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .story-style-badge {
+    background: #e2e8f0;
+    color: #4a5568;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    text-transform: capitalize;
+  }
+  
+  .story-style-badge.rhyme {
+    background: #fef5e7;
+    color: #c05621;
+  }
+  
+  .sidebar-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    transition: all 0.2s ease;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+  
+  .sidebar-toggle:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #718096;
+  }
+  
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  @media (max-width: 768px) {
+    .story-sidebar {
+      width: 280px;
+      left: -280px;
+    }
+    
+    .sidebar-toggle {
+      top: 15px;
+      left: 15px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+    }
+  }
+
   .reader-container {
     max-width: 800px;
     margin: 40px auto;
@@ -180,6 +357,29 @@
   }
 </style>
 
+<!-- Story History Sidebar Toggle Button -->
+<button class="sidebar-toggle" id="sidebar-toggle">
+  📚 Library
+</button>
+
+<!-- Story History Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- Story History Sidebar -->
+<div class="story-sidebar" id="story-sidebar">
+  <div class="sidebar-header">
+    <h2 class="sidebar-title">Library</h2>
+    <button class="sidebar-close" id="sidebar-close">&times;</button>
+  </div>
+  <div class="sidebar-content" id="sidebar-content">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-state-icon">📖</div>
+      <p>No stories yet!</p>
+      <small>Create your first magical story</small>
+    </div>
+  </div>
+</div>
+
 <div class="reader-container">
   <div class="story-header">
     <h1 class="story-title"><%= story.title %></h1>
@@ -322,5 +522,123 @@ document.addEventListener('DOMContentLoaded', function() {
     window.location.reload();
   }, 5000);
   <% } %>
+
+  // Story History Sidebar Functionality
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+  const storySidebar = document.getElementById('story-sidebar');
+  const sidebarClose = document.getElementById('sidebar-close');
+  const sidebarContent = document.getElementById('sidebar-content');
+  const emptyState = document.getElementById('empty-state');
+
+  // Load story history when sidebar is opened
+  async function loadStoryHistory() {
+    try {
+      const response = await fetch('/api/stories');
+      const data = await response.json();
+      
+      if (data.success && data.stories) {
+        renderStoryHistory(data.stories);
+      } else {
+        showEmptyState();
+      }
+    } catch (error) {
+      console.error('Failed to load story history:', error);
+      showEmptyState();
+    }
+  }
+
+  function renderStoryHistory(groupedStories) {
+    const hasStories = Object.values(groupedStories).some(group => group.length > 0);
+    
+    if (!hasStories) {
+      showEmptyState();
+      return;
+    }
+
+    let html = '';
+    
+    // Define groups with labels
+    const groups = [
+      { key: 'today', label: 'Today' },
+      { key: 'week', label: 'Previous 7 Days' },
+      { key: 'month', label: 'Previous 30 Days' },
+      { key: 'older', label: 'Older' }
+    ];
+
+    groups.forEach(group => {
+      const stories = groupedStories[group.key];
+      if (stories && stories.length > 0) {
+        html += `<div class="story-group">`;
+        html += `<div class="story-group-header">${group.label}</div>`;
+        
+        stories.forEach(story => {
+          const createdDate = new Date(story.created_at).toLocaleDateString();
+          html += `
+            <div class="story-item" data-story-id="${story.story_id}">
+              <div class="story-title-sidebar">${escapeHtml(story.title)}</div>
+              <div class="story-meta">
+                <span>${story.child_name} • Age ${story.child_age} • ${createdDate}</span>
+                <span class="story-style-badge ${story.story_style}">${story.story_style}</span>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `</div>`;
+      }
+    });
+
+    sidebarContent.innerHTML = html;
+  }
+
+  function showEmptyState() {
+    sidebarContent.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📖</div>
+        <p>No stories yet!</p>
+        <small>Create your first magical story</small>
+      </div>
+    `;
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function openStory(storyId) {
+    window.location.href = `/story/${storyId}`;
+  }
+
+  function toggleSidebar() {
+    const isActive = storySidebar.classList.contains('active');
+    
+    if (isActive) {
+      storySidebar.classList.remove('active');
+      sidebarOverlay.classList.remove('active');
+    } else {
+      storySidebar.classList.add('active');
+      sidebarOverlay.classList.add('active');
+      loadStoryHistory(); // Load stories when opening
+    }
+  }
+
+  // Event listeners for sidebar
+  sidebarToggle.addEventListener('click', toggleSidebar);
+  sidebarClose.addEventListener('click', toggleSidebar);
+  sidebarOverlay.addEventListener('click', toggleSidebar);
+
+  // Handle story item clicks using event delegation
+  sidebarContent.addEventListener('click', function(e) {
+    const storyItem = e.target.closest('.story-item');
+    if (storyItem) {
+      const storyId = storyItem.getAttribute('data-story-id');
+      if (storyId) {
+        openStory(storyId);
+      }
+    }
+  });
 });
 </script>
