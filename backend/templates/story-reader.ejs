@@ -64,6 +64,13 @@
     text-align: justify;
   }
   
+  .section-text.verse {
+    text-align: center;
+    white-space: pre-line;
+    font-style: italic;
+    line-height: 2.2;
+  }
+  
   .story-navigation {
     display: flex;
     justify-content: space-between;
@@ -202,7 +209,7 @@
               <p>Image is being generated...</p>
             </div>
           <% } %>
-          <p class="section-text"><%= section.text %></p>
+          <p class="section-text <%= section.text && section.text.split('\n').length > 2 ? 'verse' : '' %>"><%= section.text %></p>
         </div>
       <% }); %>
       

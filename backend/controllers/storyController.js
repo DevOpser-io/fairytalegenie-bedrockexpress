@@ -4,13 +4,14 @@ const { generateResponse } = require('../services/bedrockService');
 const { get, set, incr, expire } = require('../services/redisService');
 const { uploadToS3 } = require('../services/s3Service');
 const { sendToImageQueue } = require('../services/sqsService');
+const { Story } = require('../models');
 
 // Story generation controller
 class StoryController {
   // POST /v1/story - Generate a new story
   async generate(req, res) {
     try {
-      const { keywords, age, childName, childGender, familyNames, notes } = req.body;
+      const { keywords, age, childName, childGender, childCharacteristics, storyStyle, familyNames, notes } = req.body;
       
       // Validate input
       if (!keywords || !Array.isArray(keywords) || keywords.length === 0) {
@@ -29,9 +30,23 @@ class StoryController {
         return res.status(400).json({ error: 'Additional notes must be 600 characters or less' });
       }
       
+      if (childCharacteristics && childCharacteristics.length > 200) {
+        return res.status(400).json({ error: 'Child characteristics must be 200 characters or less' });
+      }
+      
+      if (!storyStyle || !['prose', 'rhyme'].includes(storyStyle)) {
+        return res.status(400).json({ error: 'Story style must be either "prose" or "rhyme"' });
+      }
+      
       // Content moderation is handled by Bedrock guardrails during story generation
       
-      // Rate limiting check
+      // Rate limiting check - TEMPORARILY DISABLED FOR DEVELOPMENT
+      // Note: For production scaling to thousands of requests/second, consider:
+      // - User-based rate limiting instead of IP-based
+      // - Sliding window rate limiting
+      // - Distributed rate limiting with Redis Cluster
+      // - AWS API Gateway rate limiting
+      /* 
       const clientIp = req.ip || req.connection.remoteAddress;
       const rateLimitKey = `story_limit:${clientIp}:${new Date().toISOString().split('T')[0]}`;
       const currentCount = await get(rateLimitKey) || 0;
@@ -39,6 +54,7 @@ class StoryController {
       if (currentCount >= (process.env.STORY_RATE_LIMIT || 5)) {
         return res.status(429).json({ error: 'Daily story limit reached. Please try again tomorrow.' });
       }
+      */
       
       // Generate story ID
       const storyId = uuidv4();
@@ -49,12 +65,17 @@ class StoryController {
         createdAt: new Date().toISOString()
       }), 3600); // 1 hour TTL
       
-      // Increment rate limit counter
-      await incr(rateLimitKey);
-      await expire(rateLimitKey, 86400); // 24 hours
+      // Increment rate limit counter - TEMPORARILY DISABLED FOR DEVELOPMENT
+      // await incr(rateLimitKey);
+      // await expire(rateLimitKey, 86400); // 24 hours
       
       // Generate story asynchronously
-      this.generateStoryAsync(storyId, { keywords, age, childName, childGender, familyNames, notes });
+      // Get user ID if authenticated
+      const userId = req.user ? req.user.id : null;
+      
+      this.generateStoryAsync(storyId, { 
+        keywords, age, childName, childGender, childCharacteristics, storyStyle, familyNames, notes, userId 
+      });
       
       // Return 202 Accepted with story ID
       res.status(202).json({ storyId });
@@ -136,12 +157,39 @@ class StoryController {
         promptSeed: imageSeed
       }));
       
-      // Store completed story
-      await set(`story:${storyId}`, JSON.stringify({
+      // Store completed story in Redis
+      const completedStory = {
         status: 'completed',
         ...story,
         createdAt: new Date().toISOString()
-      }), 86400); // 24 hour TTL
+      };
+      
+      await set(`story:${storyId}`, JSON.stringify(completedStory), 86400); // 24 hour TTL
+      
+      // Save to database for permanent storage (if user is authenticated)
+      try {
+        // Create preview text from first section
+        const previewText = story.sections && story.sections[0] 
+          ? story.sections[0].text.substring(0, 150) + (story.sections[0].text.length > 150 ? '...' : '')
+          : '';
+
+        await Story.create({
+          story_id: storyId,
+          user_id: params.userId || null, // Only set if user is authenticated
+          title: story.title || 'Untitled Story',
+          story_data: completedStory,
+          status: 'completed',
+          child_name: params.childName,
+          child_age: params.age,
+          story_style: params.storyStyle || 'prose',
+          preview_text: previewText
+        });
+        
+        console.log(`Story ${storyId} saved to database`);
+      } catch (dbError) {
+        console.error('Error saving story to database:', dbError);
+        // Don't fail the whole story generation if database save fails
+      }
       
       // Send sections to image generation queue (optional for MVP)
       for (const section of story.sections) {
@@ -167,9 +215,25 @@ class StoryController {
     } catch (error) {
       console.error('Async story generation error:', error);
       
-      // Check if this is a Bedrock guardrail violation
+      // Log detailed error information for Bedrock errors
+      if (error.$metadata) {
+        console.error('Bedrock error details:', {
+          httpStatusCode: error.$metadata.httpStatusCode,
+          requestId: error.$metadata.requestId,
+          errorCode: error.name,
+          errorMessage: error.message,
+          fault: error.$fault
+        });
+      }
+      
+      // Check if this is a throttling error
       let errorMessage = error.message;
-      if (error.message && (
+      if (error.name === 'ThrottlingException' || 
+          error.name === 'TooManyRequestsException' ||
+          (error.$metadata && error.$metadata.httpStatusCode === 429)) {
+        errorMessage = 'Service is temporarily busy. Please try again in a few moments.';
+        console.error('Bedrock throttling detected - consider implementing retry logic');
+      } else if (error.message && (
         error.message.includes('guardrail') || 
         error.message.includes('content policy') ||
         error.message.includes('safety filter') ||
@@ -189,7 +253,7 @@ class StoryController {
   
   // Create prompt for Claude
   createStoryPrompt(params) {
-    const { keywords, age, childName, childGender, familyNames, notes } = params;
+    const { keywords, age, childName, childGender, childCharacteristics, storyStyle, familyNames, notes } = params;
     
     // Create pronoun mappings
     const pronouns = {
@@ -205,39 +269,54 @@ class StoryController {
 
 Main character details:
 - Name: ${childName}
-- Gender: ${childGender}
+${childGender ? `- Gender: ${childGender}` : ''}
 - Pronouns: ${childPronouns.they}/${childPronouns.them}/${childPronouns.their}
 - Age: ${age} years old
+${childCharacteristics ? `- Physical characteristics and preferences: ${childCharacteristics}` : '- IMPORTANT: NO physical descriptions allowed - focus only on personality and actions'}
 
 Story elements to incorporate: ${keywords.join(', ')}
 ${familyNames && familyNames.length > 0 ? `Family members to include: ${familyNames.join(', ')}` : ''}
 ${notes ? `Additional notes: ${notes}` : ''}
 
+Writing Style: ${storyStyle === 'rhyme' ? `IMPORTANT: Write the ENTIRE story in simple rhyming couplets like Dr. Seuss for age ${age}. Use VERY simple words a ${age}-year-old can understand. Each line should rhyme with the next line (AABB pattern). Keep sentences short and bouncy.` : 'Write the story in traditional prose format'}
+
 Requirements:
 1. Create an age-appropriate story with 4-6 sections
-2. Each section should be 50-100 words
+2. ${storyStyle === 'rhyme' ? `Each section should be 4-6 simple rhyming couplets (lines that rhyme in pairs). Use only words a ${age}-year-old knows.` : 'Each section should be 50-100 words'}
 3. The main character should be named ${childName} and use the pronouns ${childPronouns.they}/${childPronouns.them}/${childPronouns.their}
-4. Include a consistent character description with distinctive visual features
+4. ${childCharacteristics ? 'Include the provided character characteristics in the story and character description' : 'NEVER mention physical features like hair, eyes, skin, freckles, etc. Focus only on personality and actions.'}
 5. The story should have a clear beginning, middle, and end
 6. Include a positive moral or lesson appropriate for age ${age}
 7. If family names are provided, incorporate them naturally into the story
+8. ${storyStyle === 'rhyme' ? `CRITICAL: Every section must be simple rhyming couplets (AABB). Use ONLY basic words like: cat, hat, fun, run, play, day, big, dig, etc. Make it bouncy and silly like Dr. Seuss for a ${age}-year-old.` : 'Use engaging, descriptive prose with vivid imagery appropriate for children'}
 
-Return the story in this exact JSON format:
+${storyStyle === 'rhyme' ? `
+EXAMPLE of simple Dr. Seuss style rhyming couplets for age ${age}:
+{
+  "title": "Noa and the Big Red Cat",
+  "sections": [
+    {
+      "text": "Noa saw a cat so fat,\\nSitting on a big blue mat.\\nThe cat was red, the cat was round,\\nThe biggest cat that could be found!"
+    }
+  ]
+}
+
+Remember: Each section must be in rhyming verse like the example above.
+
+` : ''}Return the story in this exact JSON format:
 {
   "title": "Story Title",
   "characterDescriptor": "Detailed visual description of ${childName} for consistent image generation",
   "sections": [
     {
-      "text": "Section text here..."
+      "text": "${storyStyle === 'rhyme' ? 'Rhyming verse text here...' : 'Section text here...'}"
     }
   ]
 }
 
-The characterDescriptor should include specific details about ${childName}:
-- Physical appearance (colors, size, distinctive features appropriate for a ${age}-year-old ${childGender})
-- Clothing or accessories
-- Any magical or special attributes
-This descriptor will be used to ensure visual consistency across all illustrations.`;
+${childCharacteristics ? 
+`The characterDescriptor should include ONLY the provided characteristics: ${childCharacteristics}. Add appropriate clothing and any magical attributes for the story.` : 
+`The characterDescriptor must be completely GENERIC with NO physical descriptions. Example: "A ${age}-year-old child wearing casual clothes, ready for adventure." Do NOT mention hair, eyes, skin tone, height, or any physical features whatsoever.`}`;
   }
 }
 

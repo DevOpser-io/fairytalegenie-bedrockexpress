@@ -26,6 +26,7 @@ const chatRoutes = require('./routes/chat');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const adminPanelRoutes = require('./routes/admin-panel');
+const storyHistoryRoutes = require('./routes/storyHistory');
 
 const listEndpoints = require('express-list-endpoints');
 
@@ -314,6 +315,9 @@ app.use((err, req, res, next) => {
     
     // Chat Routes - specifically for chat functionality
     app.use('/', chatRoutes);
+    
+    // Story History Routes - for managing user story history
+    app.use('/api/stories', storyHistoryRoutes);
     
 
     

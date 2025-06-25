@@ -97,7 +97,7 @@ module.exports = {
   // Amazon Bedrock settings
   bedrock: {
     region: process.env.REGION || 'us-east-1',
-    modelId: process.env.BEDROCK_MODEL_ID || 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', // Using the same model ID as failed_attempt
+    modelId: process.env.BEDROCK_MODEL_ID || 'amazon.nova-lite-v1:0', // Using Amazon Nova Lite
     maxTokens: parseInt(process.env.MAX_TOKENS || '2048'),
     temperature: parseFloat(process.env.TEMPERATURE || '0.7'),
   },

@@ -29,8 +29,8 @@ exports.handler = async (event) => {
       // Create image prompt
       const imagePrompt = createImagePrompt(sceneText, characterDescriptor);
       
-      // Generate image using Stable Diffusion XL
-      const imageBuffer = await generateImage(imagePrompt, imageSeed);
+      // Generate image using Amazon Nova Canvas
+      const imageBuffer = await generateImageNova(imagePrompt, imageSeed);
       
       // Upload to S3
       await uploadImageToS3(imageKey, imageBuffer);
@@ -70,6 +70,7 @@ The illustration should capture the magical, whimsical feeling of a children's f
 
 /**
  * Generate image using AWS Bedrock Stable Diffusion XL
+ * NOTE: This function is no longer used. We now use Nova Canvas (generateImageNova)
  */
 async function generateImage(prompt, seed) {
   const body = {
@@ -94,7 +95,7 @@ async function generateImage(prompt, seed) {
     body: JSON.stringify(body)
   });
   
-  console.log('Calling Bedrock with prompt:', prompt.substring(0, 200) + '...');
+  console.log('Calling Bedrock Nova Canvas with prompt:', prompt.substring(0, 200) + '...');
   
   const response = await bedrockClient.send(command);
   const responseBody = JSON.parse(Buffer.from(response.body).toString('utf-8'));
@@ -124,10 +125,8 @@ async function uploadImageToS3(key, imageBuffer) {
 }
 
 /**
- * Alternative: Generate image using Amazon Nova Canvas
- * Uncomment this to use Nova Canvas instead of Stable Diffusion
+ * Generate image using Amazon Nova Canvas
  */
-/*
 async function generateImageNova(prompt, seed) {
   const body = {
     taskType: "TEXT_IMAGE",
@@ -151,6 +150,8 @@ async function generateImageNova(prompt, seed) {
     body: JSON.stringify(body)
   });
   
+  console.log('Calling Amazon Nova Canvas with prompt:', prompt.substring(0, 200) + '...');
+  
   const response = await bedrockClient.send(command);
   const responseBody = JSON.parse(Buffer.from(response.body).toString('utf-8'));
   
@@ -160,4 +161,3 @@ async function generateImageNova(prompt, seed) {
     throw new Error('No image generated in Nova response');
   }
 }
-*/

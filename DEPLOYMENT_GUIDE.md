@@ -5,8 +5,8 @@
 ### 1. Enable Bedrock Models
 
 **In AWS Console → Bedrock → Model Access**, enable:
-- ✅ **Stable Diffusion XL** (`stability.stable-diffusion-xl-v1`)
-- ✅ **Amazon Nova Canvas** (`amazon.nova-canvas-v1:0`) *(Recommended)*
+- ✅ **Amazon Nova Canvas** (`amazon.nova-canvas-v1:0`) *(Currently in use)*
+- ✅ **Stable Diffusion XL** (`stability.stable-diffusion-xl-v1`) *(Alternative option)*
 - ✅ **Amazon Nova Pro** (`amazon.nova-pro-v1:0`) *(Multi-modal option)*
 
 ### 2. Create AWS Infrastructure

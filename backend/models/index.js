@@ -69,6 +69,83 @@ function defineConversationModel(sequelizeInstance) {
   });
 }
 
+/**
+ * Define the Story model
+ * @param {Sequelize} sequelizeInstance - Sequelize instance
+ * @returns {Model} Story model
+ */
+function defineStoryModel(sequelizeInstance) {
+  return sequelizeInstance.define('Story', {
+    story_id: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+      allowNull: false,
+      unique: true
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    story_data: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+      defaultValue: {}
+    },
+    status: {
+      type: DataTypes.ENUM('generating', 'completed', 'failed'),
+      allowNull: false,
+      defaultValue: 'generating'
+    },
+    child_name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    child_age: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    story_style: {
+      type: DataTypes.ENUM('prose', 'rhyme'),
+      allowNull: false,
+      defaultValue: 'prose'
+    },
+    preview_text: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    is_favorite: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    }
+  }, {
+    tableName: 'stories',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    underscored: true,
+    indexes: [
+      {
+        fields: ['user_id']
+      },
+      {
+        fields: ['created_at']
+      },
+      {
+        fields: ['status']
+      }
+    ]
+  });
+}
+
 // Log the current environment during database initialization
 console.log('==================================================');
 console.log(`DATABASE MODELS: Current NODE_ENV is set to: ${process.env.NODE_ENV || 'undefined (defaulting to development)'}`);
@@ -98,10 +175,13 @@ if (process.env.NODE_ENV !== 'production') {
   // Initialize models synchronously for development
   db.User = UserModel(db.sequelize);
   db.Conversation = defineConversationModel(db.sequelize);
+  db.Story = defineStoryModel(db.sequelize);
   
   // Setup associations
   db.User.hasMany(db.Conversation, { foreignKey: 'user_id' });
   db.Conversation.belongsTo(db.User, { foreignKey: 'user_id' });
+  db.User.hasMany(db.Story, { foreignKey: 'user_id' });
+  db.Story.belongsTo(db.User, { foreignKey: 'user_id' });
 }
 
 // Flag to track initialization

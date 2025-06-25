@@ -134,40 +134,74 @@ class BedrockClient {
     // Filter out empty messages
     const validMessages = messages.filter(msg => msg && msg.content);
     
+    // Check if using Nova models
+    const isNova = this.modelId.startsWith('amazon.nova');
+    
     // Process each message
     for (const msg of validMessages) {
       const role = msg.role || 'user';
-      const content = [{
-        type: 'text',
-        text: msg.content
-      }];
       
       if (role === 'system') {
         // Append any additional system messages to our default
         systemMessage = `${systemMessage}\n${msg.content}`;
       } else if (role === 'user' || role === 'assistant') {
-        formattedMessages.push({
-          role: role,
-          content: content
-        });
+        if (isNova) {
+          // Nova format - content is an array with just text field
+          formattedMessages.push({
+            role: role,
+            content: [{
+              text: msg.content
+            }]
+          });
+        } else {
+          // Claude format - content includes type field
+          formattedMessages.push({
+            role: role,
+            content: [{
+              type: 'text',
+              text: msg.content
+            }]
+          });
+        }
       } else {
         // Default to 'user' for unrecognized roles
-        formattedMessages.push({
-          role: 'user',
-          content: content
-        });
+        if (isNova) {
+          formattedMessages.push({
+            role: 'user',
+            content: [{
+              text: msg.content
+            }]
+          });
+        } else {
+          formattedMessages.push({
+            role: 'user',
+            content: [{
+              type: 'text',
+              text: msg.content
+            }]
+          });
+        }
       }
     }
     
     // If no messages, add a default user message
     if (formattedMessages.length === 0) {
-      formattedMessages.push({
-        role: 'user',
-        content: [{
-          type: 'text',
-          text: 'Hello'
-        }]
-      });
+      if (isNova) {
+        formattedMessages.push({
+          role: 'user',
+          content: [{
+            text: 'Hello'
+          }]
+        });
+      } else {
+        formattedMessages.push({
+          role: 'user',
+          content: [{
+            type: 'text',
+            text: 'Hello'
+          }]
+        });
+      }
     }
     
     console.log(`Final formatted messages: ${JSON.stringify(formattedMessages, null, 2)}`);
@@ -176,6 +210,50 @@ class BedrockClient {
     return [formattedMessages, systemMessage];
   }
   
+  /**
+   * Build request body based on model type
+   * @private
+   */
+  _buildRequestBody(formattedMessages, systemMessage) {
+    // Check if using Nova models
+    if (this.modelId.startsWith('amazon.nova')) {
+      // Nova format - system messages must be incorporated into the first user message
+      const messages = [...formattedMessages];
+      
+      // If there's a system message, prepend it to the first user message
+      if (systemMessage && messages.length > 0 && messages[0].role === 'user') {
+        const originalContent = messages[0].content[0].text;
+        messages[0].content[0].text = `${systemMessage}\n\n${originalContent}`;
+      }
+      
+      const requestBody = {
+        messages: messages,
+        inferenceConfig: {
+          maxTokens: config.bedrock.maxTokens,
+          temperature: config.bedrock.temperature,
+          topP: 0.9
+        }
+      };
+      
+      return requestBody;
+    } else {
+      // Claude/Anthropic format
+      const requestBody = {
+        anthropic_version: 'bedrock-2023-05-31',
+        messages: formattedMessages,
+        max_tokens: config.bedrock.maxTokens,
+        temperature: config.bedrock.temperature
+      };
+      
+      // Add system message if present
+      if (systemMessage) {
+        requestBody.system = [{"type": "text", "text": systemMessage}];
+      }
+      
+      return requestBody;
+    }
+  }
+
   /**
    * Create a chat completion
    * @param {Array} messages - Array of message objects
@@ -196,21 +274,11 @@ class BedrockClient {
       console.log(`Using model: ${this.modelId}`);
       console.log(`Message count: ${messages.length}`);
       
-      // Prepare messages in the format expected by Claude
+      // Prepare messages in the format expected by the model
       const [formattedMessages, systemMessage] = this._prepareMessages(messages);
       
-      // Build the complete request body
-      const requestBody = {
-        anthropic_version: 'bedrock-2023-05-31',
-        messages: formattedMessages,
-        max_tokens: config.bedrock.maxTokens,
-        temperature: config.bedrock.temperature
-      };
-      
-      // Add system message if present
-      if (systemMessage) {
-        requestBody.system = [{"type": "text", "text": systemMessage}];
-      }
+      // Build the request body based on model type
+      const requestBody = this._buildRequestBody(formattedMessages, systemMessage);
       
       console.log(`Final request body being sent to Bedrock: ${JSON.stringify(requestBody, null, 2)}`);
       
@@ -240,6 +308,19 @@ class BedrockClient {
       }
     } catch (error) {
       console.error('Error in createChatCompletion:', error);
+      
+      // Log detailed AWS SDK error information
+      if (error.$metadata) {
+        console.error('AWS Bedrock Error Details:', {
+          httpStatusCode: error.$metadata.httpStatusCode,
+          requestId: error.$metadata.requestId,
+          errorCode: error.name,
+          errorType: error.$fault,
+          modelId: this.modelId,
+          fullError: JSON.stringify(error, null, 2)
+        });
+      }
+      
       throw error;
     }
   }
@@ -247,6 +328,30 @@ class BedrockClient {
 
 // Create a singleton instance
 const bedrockClientInstance = new BedrockClient();
+
+/**
+ * Parse response based on model type
+ * @private
+ */
+function parseModelResponse(response, modelId) {
+  if (modelId.startsWith('amazon.nova')) {
+    // Nova format
+    if (response && response.output && response.output.message && response.output.message.content) {
+      const content = response.output.message.content;
+      if (Array.isArray(content) && content.length > 0 && content[0].text) {
+        return content[0].text;
+      }
+    }
+  } else {
+    // Claude/Anthropic format
+    if (response && response.content && Array.isArray(response.content) && response.content.length > 0) {
+      return response.content[0].text;
+    }
+  }
+  
+  console.error('Unexpected response format:', response);
+  throw new Error('Unexpected response format from Bedrock');
+}
 
 /**
  * Generate a response from the Amazon Bedrock model
@@ -257,15 +362,20 @@ const bedrockClientInstance = new BedrockClient();
 async function generateResponse(messages, options = {}) {
   try {
     const response = await bedrockClientInstance.createChatCompletion(messages, false);
-    
-    if (response && response.content && Array.isArray(response.content) && response.content.length > 0) {
-      return response.content[0].text;
-    } else {
-      console.error('Unexpected response format:', response);
-      throw new Error('Unexpected response format from Bedrock');
-    }
+    return parseModelResponse(response, bedrockClientInstance.modelId);
   } catch (error) {
     console.error('Error generating response from Bedrock:', error);
+    
+    // Log additional error context
+    if (error.$metadata) {
+      console.error('Bedrock API Error Context:', {
+        httpStatusCode: error.$metadata.httpStatusCode,
+        requestId: error.$metadata.requestId,
+        attempts: error.$metadata.attempts,
+        totalRetryDelay: error.$metadata.totalRetryDelay
+      });
+    }
+    
     throw error;
   }
 }
@@ -289,8 +399,16 @@ async function generateStreamingResponse(messages, onChunk, options = {}) {
         const chunk = Buffer.from(event.chunk.bytes).toString('utf-8');
         const parsed = JSON.parse(chunk);
         
-        if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
-          onChunk(parsed.delta.text);
+        if (bedrockClientInstance.modelId.startsWith('amazon.nova')) {
+          // Nova streaming format
+          if (parsed.contentBlockDelta && parsed.contentBlockDelta.delta && parsed.contentBlockDelta.delta.text) {
+            onChunk(parsed.contentBlockDelta.delta.text);
+          }
+        } else {
+          // Claude/Anthropic streaming format
+          if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
+            onChunk(parsed.delta.text);
+          }
         }
       }
     }
@@ -303,7 +421,7 @@ async function generateStreamingResponse(messages, onChunk, options = {}) {
 }
 
 /**
- * Generate a story using Claude
+ * Generate a story using the configured AI model
  * @param {string} prompt - The story generation prompt
  * @returns {Promise<string>} - The generated story JSON
  */
@@ -323,7 +441,7 @@ async function generateStory(prompt) {
       JSON.parse(response);
       return response;
     } catch (parseError) {
-      console.error('Invalid JSON response from Claude:', response);
+      console.error('Invalid JSON response from AI model:', response);
       throw new Error('Failed to generate valid story format');
     }
   } catch (error) {

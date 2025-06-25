@@ -19,8 +19,11 @@ const validateStoryRequest = [
     .isLength({ min: 1, max: 30 })
     .withMessage('Child name is required and must be 1-30 characters'),
   body('childGender')
-    .isIn(['boy', 'girl', 'non-binary', 'prefer-not-to-say'])
-    .withMessage('Child gender must be one of: boy, girl, non-binary, prefer-not-to-say'),
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage('Child gender must be 50 characters or less'),
   body('age')
     .isInt({ min: 1, max: 12 })
     .withMessage('Age must be between 1 and 12'),
@@ -39,7 +42,17 @@ const validateStoryRequest = [
     .isString()
     .trim()
     .isLength({ max: 600 })
-    .withMessage('Additional notes must be 600 characters or less')
+    .withMessage('Additional notes must be 600 characters or less'),
+  body('storyStyle')
+    .isString()
+    .isIn(['prose', 'rhyme'])
+    .withMessage('Story style must be either "prose" or "rhyme"'),
+  body('childCharacteristics')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage('Child characteristics must be 200 characters or less')
 ];
 
 // Handle validation errors
