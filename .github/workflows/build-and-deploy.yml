@@ -133,9 +133,6 @@ jobs:
           --build-arg MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
           --build-arg MAIL_DEFAULT_SENDER=${{ secrets.MAIL_DEFAULT_SENDER }} \
           --build-arg ADMIN_USERS_SECRET_NAME=${{ secrets.ADMIN_USERS_SECRET_NAME }} \
-          --build-arg S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} \
-          --build-arg IMAGE_GENERATION_QUEUE_URL=${{ secrets.IMAGE_GENERATION_QUEUE_URL }} \
-          --build-arg CLOUDFRONT_DISTRIBUTION_URL=${{ secrets.CLOUDFRONT_DISTRIBUTION_URL }} \
           -t $REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG .
         
         docker push $REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG
