@@ -1,0 +1,91 @@
+<% title = 'Resend Verification Email' %>
+<link rel="stylesheet" href="/static/auth.css">
+<%- include('./partials/favicon') %>
+
+<div class="auth-form-container">
+  <h2>Resend Verification Email</h2>
+  
+  <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+    <div class="flash error">
+      <%= error %>
+    </div>
+  <% } %>
+  <% if (typeof message !== 'undefined' && message && message.length > 0) { %>
+    <div class="flash info">
+      <%= message %>
+    </div>
+  <% } %>
+  
+  <form id="resend-verification-form" method="POST" action="javascript:void(0);" class="auth-form">
+    
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>" required autofocus>
+    </div>
+    
+    <button type="submit" class="auth-button">Resend Verification Email</button>
+    
+    <div class="auth-links">
+      <a href="/auth/login">Back to Login</a>
+    </div>
+  </form>
+</div>
+
+<script nonce="<%= cspNonce %>">
+document.getElementById('resend-verification-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const data = {
+    email: formData.get('email')
+  };
+  
+  try {
+    const response = await fetch('/auth/resend-verification', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    const result = await response.json();
+    
+    // Clear any existing messages
+    const existingMessages = document.querySelectorAll('.flash');
+    existingMessages.forEach(msg => msg.remove());
+    
+    // Create appropriate message div based on response
+    if (result.message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'flash info';
+      messageDiv.textContent = result.message;
+      this.prepend(messageDiv);
+      
+      // Only clear the form on success messages
+      if (response.ok) {
+        this.reset();
+      }
+    }
+    
+    if (result.error) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'flash error';
+      errorDiv.textContent = result.error;
+      this.prepend(errorDiv);
+    }
+  } catch (err) {
+    console.error('Resend verification error:', err);
+    
+    // Clear any existing messages
+    const existingMessages = document.querySelectorAll('.flash');
+    existingMessages.forEach(msg => msg.remove());
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'flash error';
+    errorDiv.textContent = 'An error occurred while processing your request';
+    this.prepend(errorDiv);
+  }
+});
+</script>
+
