@@ -1,100 +1,24 @@
-# Bedrock Express
+# fairytalegenie expressAI Application Template (with Claude Sonnet 3.5 via AWS Bedrock)
 
-An Express.js version of a Bedrock AI Chat application with Amazon Bedrock integration. This application features a clear separation between frontend and backend components for easier AI-driven customization.
+This repository contains the code for the fairytalegenie AI application.
+This is a site template for the [DevOpser AI Hosting and Development platform](https://app.devopser.io).
 
-## Project Structure
+## CICD Process (GitOps)
 
-The project is organized with a clear separation of concerns:
+## Development Environment Setup
 
-```
-bedrock-express/
-├── frontend/                 # Frontend code
-│   ├── node_modules/         # Frontend dependencies
-│   ├── public/               # Static assets served by Express
-│   │   ├── static/           # CSS, JS, images, etc.
-│   │   └── index.html        # Main HTML entry point
-│   ├── src/                  # Frontend source code
-│   │   ├── chat.js           # Chat functionality
-│   │   ├── styles.css        # Main stylesheet
-│   │   ├── mfa.js            # Multi-factor authentication
-│   │   └── account.js        # Account management
-│   ├── package.json          # Frontend dependencies
-│   └── webpack.config.js     # Frontend webpack configuration
-│
-├── backend/                  # Backend code
-│   ├── node_modules/         # Backend dependencies
-│   ├── config/               # Configuration settings
-│   ├── controllers/          # Request handlers
-│   ├── routes/               # API routes
-│   ├── services/             # Business logic and external services
-│   ├── utils/                # Utility functions
-│   ├── package.json          # Backend dependencies
-│   └── server.js             # Main entry point
-│
-└── package.json              # Root coordination scripts
-```
+The easiest way to get up and running is to launch a development environment within the Site Detail page of your site on the [DevOpser platform](https://app.devopser.io). See the following docs for step by step guide:
+- [Launch a Development Environment](https://devopser.io/docs/launch-development-environment.html)
+    
+To launch a Dev environment inside your own infrastructure/ VPC, subscribe to [the Bedrock express AMI in AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-tti62q7ulbcoq), spin up an EC2 using the AMI, and clone this repo into the environment. For detailed step by step instructions to get up and running, [please see the following tutorial](https://devopser.io/blog/get-started-building-your-own-ai-application-in-20-minutes.html) or you can use the [Terraform quickstart](https://github.com/DevOpser-io/bedrock-express-quickstart).
 
-## Features
+## Deployment Process (Staging and Production)
 
-- Clear separation between frontend and backend
-- Amazon Bedrock integration for AI chat
-- Streaming message responses
-- Chat history management
-- Temporary/persistent conversation modes
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 16+ and npm
-- AWS credentials configured for Bedrock access
-
-### Installation
-
-```bash
-# Install all dependencies (frontend and backend)
-npm run install:all
-```
-
-### Development
-
-```bash
-# Build frontend assets and start backend in development mode
-npm run dev
-
-# Just build frontend assets
-npm run frontend:build
-
-# Watch frontend files for changes
-npm run frontend:watch
-
-# Start backend in development mode
-npm run backend:dev
-```
-
-### Production
-
-```bash
-# Build frontend and start backend
-npm start
-```
-
-## Configuration
-
-The application's configuration is centralized in the `backend/config/index.js` file. You can customize settings through environment variables or by modifying the config file directly.
-
-Key settings include:
-
-- Server port (default: 8000)
-- AWS Bedrock model ID and parameters
-- Chat settings (system prompt, history size)
-
-## Architecture
-
-This application follows a modular architecture:
-
-1. **Frontend**: Browser-based UI built with vanilla JavaScript and CSS
-2. **Backend**: Express.js server with Amazon Bedrock integration
-3. **API**: RESTful endpoints for chat and conversation management
-
-The frontend and backend communicate via HTTP requests, with server-sent events (SSE) used for streaming responses.
+1. Create a new branch for your changes, or you can use the "dev" branch that has been pre-made for you.
+2. Make your changes in the new branch and test your changes thoroughly on a remote dev environment.
+3. Create a pull request to the appropriate branch:
+   - For staging deployment: Create a pull request to the `staging` branch.
+   - For production deployment: Create a pull request to the `main` branch.
+4. Wait for the required reviews and checks to pass.
+5. Merge your own PR at your discretion. When you merge your PR or push changes to Staging, you will trigger a build and deployment to the staging environment.
+6. If everything looks good, merge the PR to main and trigger a build and deployment to the production environment.
